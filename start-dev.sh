@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# رنگ‌ها برای خروجی
+# Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# تابع برای نمایش پیام
+# Function to display messages
 print_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
@@ -24,59 +24,59 @@ print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-print_info "شروع راه‌اندازی فرانت‌اند..."
+print_info "Starting frontend setup..."
 
-# بررسی وجود Node.js
+# Check for Node.js
 if ! command -v node &> /dev/null; then
-    print_error "Node.js نصب نشده است. لطفاً Node.js را نصب کنید."
+    print_error "Node.js is not installed. Please install Node.js."
     exit 1
 fi
 
-# بررسی وجود npm
+# Check for npm
 if ! command -v npm &> /dev/null; then
-    print_error "npm نصب نشده است. لطفاً npm را نصب کنید."
+    print_error "npm is not installed. Please install npm."
     exit 1
 fi
 
-# بررسی وجود فایل .env
+# Check for .env file
 if [ ! -f ".env" ]; then
-    print_warning "فایل .env یافت نشد. از .env.example استفاده می‌شود."
+    print_warning ".env file not found. Using .env.example."
     if [ -f ".env.example" ]; then
         cp .env.example .env
-        print_success "فایل .env از .env.example ایجاد شد."
+        print_success ".env file created from .env.example."
     else
-        print_error "فایل .env.example نیز یافت نشد!"
+        print_error ".env.example file not found either!"
         exit 1
     fi
 fi
 
-# بررسی وجود node_modules
+# Check for node_modules
 if [ ! -d "node_modules" ]; then
-    print_warning "node_modules یافت نشد. در حال نصب dependencies..."
+    print_warning "node_modules not found. Installing dependencies..."
     npm install
     if [ $? -ne 0 ]; then
-        print_error "خطا در نصب dependencies!"
+        print_error "Error installing dependencies!"
         exit 1
     fi
-    print_success "Dependencies نصب شدند."
+    print_success "Dependencies installed."
 fi
 
-# بررسی اینکه آیا سرور در حال اجرا است
+# Check if server is running
 if lsof -Pi :3001 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
-    print_warning "پورت 3001 در حال استفاده است."
-    read -p "آیا می‌خواهید ادامه دهید؟ (y/n) " -n 1 -r
+    print_warning "Port 3001 is in use."
+    read -p "Do you want to continue? (y/n) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_info "متوقف شد."
+        print_info "Stopped."
         exit 0
     fi
 fi
 
-# راه‌اندازی سرور
-print_info "راه‌اندازی سرور Next.js..."
-print_success "سرور در حال راه‌اندازی است..."
-print_info "برای توقف، Ctrl+C را فشار دهید."
-print_info "فرانت‌اند در آدرس http://localhost:3001 در دسترس خواهد بود"
+# Start server
+print_info "Starting Next.js server..."
+print_success "Server is starting..."
+print_info "Press Ctrl+C to stop."
+print_info "Frontend will be available at http://localhost:3001"
 echo ""
 
 npm run dev
