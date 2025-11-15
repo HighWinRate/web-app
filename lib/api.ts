@@ -1,5 +1,5 @@
 /**
- * API Client برای اتصال به Backend
+ * API Client for connecting to Backend
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -119,10 +119,10 @@ export class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
-    const headers: HeadersInit = {
+
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
@@ -136,7 +136,7 @@ export class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (response.status === 401) {
         // Unauthorized - clear token
         this.setToken(null);
@@ -148,12 +148,90 @@ export class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       return await response.json();
     } catch (error) {
-      console.error('API request failed:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const isNetworkError =
+        error instanceof TypeError &&
+        (errorMessage === 'Failed to fetch' ||
+          errorMessage.includes('fetch') ||
+          errorMessage.includes('network'));
+
+      // Handle network/fetch errors specifically
+      if (isNetworkError) {
+        const networkError = new Error(
+          `Unable to connect to the API server at ${url}. Please ensure the backend server is running at ${this.baseUrl}`
+        );
+        networkError.name = 'NetworkError';
+        // Preserve original error as cause if available
+        if (error instanceof Error) {
+          networkError.cause = error;
+        }
+
+        // Log error details separately to ensure they're captured
+        const errorDetails: Record<string, unknown> = {
+          url,
+          baseUrl: this.baseUrl,
+          message: networkError.message,
+          originalError: errorMessage,
+        };
+
+        if (error instanceof Error) {
+          errorDetails.errorName = error.name;
+          errorDetails.errorMessage = error.message;
+          errorDetails.errorStack = error.stack;
+        } else {
+          errorDetails.error = String(error);
+        }
+
+        console.error('API request failed - Network error:', errorDetails);
+        throw networkError;
+      }
+
+      // Handle other fetch errors
+      if (error instanceof TypeError) {
+        const fetchError = new Error(
+          `Network request failed: ${errorMessage}. Please check your connection and ensure the server is running.`
+        );
+        fetchError.name = 'FetchError';
+        fetchError.cause = error;
+
+        const errorDetails: Record<string, unknown> = {
+          url,
+          baseUrl: this.baseUrl,
+          message: fetchError.message,
+          originalError: errorMessage,
+          errorName: error.name,
+          errorMessage: error.message,
+          errorStack: error.stack,
+        };
+
+        console.error('API request failed - Fetch error:', errorDetails);
+        throw fetchError;
+      }
+
+      // Handle other errors
+      const errorDetails: Record<string, unknown> = {
+        url,
+        baseUrl: this.baseUrl,
+        message: errorMessage,
+      };
+
+      if (error instanceof Error) {
+        errorDetails.errorName = error.name;
+        errorDetails.errorMessage = error.message;
+        errorDetails.errorStack = error.stack;
+      } else {
+        errorDetails.error = String(error);
+      }
+
+      console.error('API request failed:', errorDetails);
       throw error;
     }
   }
@@ -188,7 +266,12 @@ export class ApiClient {
   }
 
   // Auth endpoints
-  async register(data: { email: string; password: string; first_name: string; last_name: string }): Promise<AuthResponse> {
+  async register(data: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+  }): Promise<AuthResponse> {
     const response = await this.post<AuthResponse>('/auth/register', data);
     if (response.access_token) {
       this.setToken(response.access_token);
@@ -196,7 +279,10 @@ export class ApiClient {
     return response;
   }
 
-  async login(data: { email: string; password: string }): Promise<AuthResponse> {
+  async login(data: {
+    email: string;
+    password: string;
+  }): Promise<AuthResponse> {
     const response = await this.post<AuthResponse>('/auth/login', data);
     if (response.access_token) {
       this.setToken(response.access_token);
@@ -256,8 +342,14 @@ export class ApiClient {
   }
 
   // Discount endpoints
-  async validateDiscount(code: string, productId: string): Promise<DiscountValidation> {
-    return this.post<DiscountValidation>('/discount/validate', { code, productId });
+  async validateDiscount(
+    code: string,
+    productId: string
+  ): Promise<DiscountValidation> {
+    return this.post<DiscountValidation>('/discount/validate', {
+      code,
+      productId,
+    });
   }
 
   // File endpoints
@@ -276,4 +368,3 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-

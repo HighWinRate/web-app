@@ -40,13 +40,20 @@ fi
 
 # Check for .env file
 if [ ! -f ".env" ]; then
-    print_warning ".env file not found. Using .env.example."
+    print_warning ".env file not found."
     if [ -f ".env.example" ]; then
         cp .env.example .env
         print_success ".env file created from .env.example."
     else
-        print_error ".env.example file not found either!"
-        exit 1
+        print_warning ".env.example file not found. Creating .env with default values..."
+        cat > .env << 'ENVEOF'
+# API URL
+NEXT_PUBLIC_API_URL=http://localhost:3000
+
+# Next.js Configuration
+NEXT_PUBLIC_APP_NAME=High Win Rate
+ENVEOF
+        print_success ".env file created with default values."
     fi
 fi
 
