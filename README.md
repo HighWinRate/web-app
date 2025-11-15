@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# High Win Rate Frontend
 
-## Getting Started
+فرانت‌اند فروشگاه استراتژی‌های معاملاتی با Next.js و TypeScript
 
-First, run the development server:
+## 🚀 راه‌اندازی سریع
 
 ```bash
+# نصب dependencies
+npm install
+
+# راه‌اندازی سرور توسعه
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+پس از راه‌اندازی، اپلیکیشن در `http://localhost:3001` در دسترس خواهد بود.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📚 اسکریپت‌ها
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# راه‌اندازی سرور توسعه
+npm run dev
 
-## Learn More
+# ساخت برای production
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# راه‌اندازی سرور production
+npm start
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# اجرای linter
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔧 تنظیمات
 
-## Deploy on Vercel
+1. فایل `.env.local` را از `.env.example` کپی کنید:
+```bash
+cp .env.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. متغیرهای محیطی را تنظیم کنید:
+- `NEXT_PUBLIC_API_URL`: آدرس API بک‌اند (پیش‌فرض: `http://localhost:3000`)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ تکنولوژی‌ها
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Linting**: ESLint
+
+## 📁 ساختار پروژه
+
+```
+frontend/
+├── app/              # صفحات و routeها (App Router)
+├── components/       # کامپوننت‌های قابل استفاده مجدد
+├── lib/             # توابع و utilities
+├── public/          # فایل‌های استاتیک
+└── types/           # تعاریف TypeScript
+```
+
+## 🔗 اتصال به Backend
+
+بک‌اند در `http://localhost:3000` اجرا می‌شود و API documentation در `http://localhost:3000/api` (Swagger UI) در دسترس است.
+
+## 📝 پیش‌نیازها
+
+- Node.js 18+
+- npm
+
+## 🚀 شروع کار
+
+1. کلون کردن پروژه:
+```bash
+git clone git@github.com:HighWinRate/frontend.git
+cd frontend
+```
+
+2. نصب dependencies:
+```bash
+npm install
+```
+
+3. تنظیم متغیرهای محیطی:
+```bash
+cp .env.example .env.local
+# ویرایش .env.local و تنظیم NEXT_PUBLIC_API_URL
+```
+
+4. راه‌اندازی سرور توسعه:
+```bash
+npm run dev
+```
+
+5. باز کردن مرورگر:
+- Frontend: `http://localhost:3001`
+- Backend API: `http://localhost:3000/api`
