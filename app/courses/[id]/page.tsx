@@ -70,8 +70,9 @@ export default function CourseDetailPage() {
     setSelectedFile(file);
     setIsFileModalOpen(true);
 
-    // Get file URL with token in query parameter for video streaming
-    const url = apiClient.getFileStreamUrl(file.id);
+    // Get file URL with token in query parameter and view=true for PDF/video streaming
+    // view=true tells backend to use Content-Disposition: inline instead of attachment
+    const url = apiClient.getFileStreamUrl(file.id, true);
 
     // If it's a video file, use the URL directly for streaming
     // The backend will handle authentication from query parameter
@@ -79,7 +80,7 @@ export default function CourseDetailPage() {
       setVideoUrl(url);
     }
 
-    // If it's a PDF file, use the URL directly (with token in query parameter if needed)
+    // If it's a PDF file, use the URL with view=true to display in browser
     if (file.type === 'pdf' && (file.isFree || hasAccess)) {
       setPdfUrl(url);
     }

@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { apiClient, Product } from '@/lib/api';
+import { apiClient, Product, File as FileType } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -21,6 +22,11 @@ export default function ProductDetailPage() {
   const [purchasing, setPurchasing] = useState(false);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -104,6 +110,53 @@ export default function ProductDetailPage() {
       alert('خطا در آغاز پرداخت: ' + (error.message || 'خطای ناشناخته'));
     } finally {
       setPurchasing(false);
+    }
+  };
+
+  const handleDownloadFile = async (fileId: string) => {
+    try {
+      await apiClient.downloadFile(fileId);
+    } catch (error: any) {
+      console.error('Error downloading file:', error);
+      alert(error.message || 'خطا در دانلود فایل');
+    }
+  };
+
+  const handleViewFileDetails = async (file: FileType) => {
+    setSelectedFile(file);
+    setIsFileModalOpen(true);
+
+    // Get file URL with token in query parameter and view=true for PDF/video streaming
+    // view=true tells backend to use Content-Disposition: inline instead of attachment
+    const url = apiClient.getFileStreamUrl(file.id, true);
+
+    // If it's a video file, use the URL directly for streaming
+    // The backend will handle authentication from query parameter
+    if (file.type === 'video' && (file.isFree || alreadyOwned)) {
+      setVideoUrl(url);
+    }
+
+    // If it's a PDF file, use the URL with view=true to display in browser
+    if (file.type === 'pdf' && (file.isFree || alreadyOwned)) {
+      setPdfUrl(url);
+    }
+  };
+
+  const handleCloseFileModal = () => {
+    setIsFileModalOpen(false);
+    setSelectedFile(null);
+    // Clean up blob URLs if they were created
+    if (videoUrl && videoUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(videoUrl);
+    }
+    if (pdfUrl && pdfUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pdfUrl);
+    }
+    setVideoUrl(null);
+    setPdfUrl(null);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.src = '';
     }
   };
 
@@ -218,6 +271,62 @@ export default function ProductDetailPage() {
               </div>
             )}
           </div>
+
+          {product.files && product.files.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold dark:text-gray-200">فایل‌های این محصول</h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  {product.files.length} فایل
+                </span>
+              </div>
+              <div className="space-y-4">
+                {product.files.map((file: FileType) => (
+                  <Card key={file.id}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold mb-3 text-gray-800 dark:text-gray-200">{file.name}</h3>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">نوع فایل:</span>
+                            <span className="font-medium dark:text-gray-300 uppercase">{file.type}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">حجم فایل:</span>
+                            <span className="font-medium dark:text-gray-300">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600 dark:text-gray-400">وضعیت:</span>
+                            <span className={`font-medium ${file.isFree ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                              {file.isFree ? 'رایگان' : 'پولی'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewFileDetails(file)}
+                        >
+                          جزئیات
+                        </Button>
+                        {(file.isFree || alreadyOwned) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadFile(file.id)}
+                          >
+                            دانلود
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
           {product.courses && product.courses.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
@@ -379,6 +488,103 @@ export default function ProductDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* File Details Modal */}
+      <Modal
+        isOpen={isFileModalOpen}
+        onClose={handleCloseFileModal}
+        title={selectedFile?.name || 'جزئیات فایل'}
+        size={selectedFile?.type === 'video' ? 'xl' : 'lg'}
+      >
+        {selectedFile && (
+          <div className="space-y-6">
+            {/* File Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">نام فایل:</span>
+                <span className="text-gray-900 dark:text-gray-100">{selectedFile.name}</span>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">نوع فایل:</span>
+                <span className="text-gray-900 dark:text-gray-100 uppercase">{selectedFile.type}</span>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">حجم فایل:</span>
+                <span className="text-gray-900 dark:text-gray-100">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">وضعیت:</span>
+                <span className={`font-medium ${selectedFile.isFree ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                  {selectedFile.isFree ? 'رایگان' : 'پولی'}
+                </span>
+              </div>
+            </div>
+
+            {/* Video Player */}
+            {selectedFile.type === 'video' && (selectedFile.isFree || alreadyOwned) && videoUrl && (
+              <div className="w-full">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">پخش ویدیو</h3>
+                <div className="bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    controls
+                    className="w-full h-auto max-h-[70vh]"
+                    src={videoUrl}
+                    onError={(e) => {
+                      console.error('Video playback error:', e);
+                      alert('خطا در پخش ویدیو. لطفا فایل را دانلود کنید.');
+                    }}
+                  >
+                    مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+                  </video>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  اگر ویدیو پخش نشد، لطفا فایل را دانلود کنید.
+                </p>
+              </div>
+            )}
+
+            {/* PDF Viewer */}
+            {selectedFile.type === 'pdf' && (selectedFile.isFree || alreadyOwned) && pdfUrl && (
+              <div className="w-full">
+                <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">مشاهده PDF</h3>
+                <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden" style={{ height: '600px' }}>
+                  <iframe
+                    src={`${pdfUrl}#toolbar=1`}
+                    className="w-full h-full"
+                    title={selectedFile.name}
+                    onError={() => {
+                      alert('خطا در نمایش PDF. لطفا فایل را دانلود کنید.');
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Download Button */}
+            {(selectedFile.isFree || alreadyOwned) && (
+              <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Button
+                  onClick={() => {
+                    handleDownloadFile(selectedFile.id);
+                  }}
+                >
+                  دانلود فایل
+                </Button>
+              </div>
+            )}
+
+            {/* Access Denied Message */}
+            {!selectedFile.isFree && !alreadyOwned && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <p className="text-yellow-700 dark:text-yellow-300 text-center">
+                  برای مشاهده و دانلود این فایل، باید محصول را خریداری کنید.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

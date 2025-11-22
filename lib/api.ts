@@ -397,17 +397,25 @@ export class ApiClient {
     return `${this.baseUrl}/file/serve/${fileId}`;
   }
 
-  getFileStreamUrl(fileId: string): string {
+  getFileStreamUrl(fileId: string, view: boolean = false): string {
     // Get file URL with token if available (for authentication)
     const url = `${this.baseUrl}/file/serve/${fileId}`;
     const token = this.getToken();
+    const params = new URLSearchParams();
+    
+    // Add view parameter if needed (for PDF viewing in browser)
+    if (view) {
+      params.append('view', 'true');
+    }
     
     // For video/audio streaming, we need to add token to URL as query parameter
     // because video/audio tags can't send custom headers
     if (token) {
-      return `${url}?token=${encodeURIComponent(token)}`;
+      params.append('token', token);
     }
-    return url;
+    
+    const queryString = params.toString();
+    return queryString ? `${url}?${queryString}` : url;
   }
 
   async downloadFile(fileId: string): Promise<void> {
