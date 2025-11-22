@@ -135,9 +135,9 @@ export default function ProductDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{product.title}</h1>
           {product.thumbnail && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
               <img
                 src={product.thumbnail}
                 alt={product.title}
@@ -149,53 +149,53 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-3 text-gray-800">توضیحات محصول</h2>
-            <p className="text-gray-700 mb-6 leading-relaxed">{product.description}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
+            <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">توضیحات محصول</h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">{product.description}</p>
             
             {product.markdown_description && (
-              <div className="mb-6 pt-4 border-t border-gray-200">
-                <h3 className="text-md font-semibold mb-3 text-gray-800">توضیحات کامل (Markdown)</h3>
-                <div className="prose prose-sm max-w-none">
-                  <pre className="whitespace-pre-wrap text-gray-700 font-sans bg-gray-50 p-4 rounded-lg">
+              <div className="mb-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-md font-semibold mb-3 text-gray-800 dark:text-gray-200">توضیحات کامل (Markdown)</h3>
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 font-sans bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
                     {product.markdown_description}
                   </pre>
                 </div>
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               {product.category && (
                 <div>
-                  <span className="text-sm font-semibold text-gray-600 block mb-1">دسته‌بندی:</span>
-                  <span className="text-gray-800 font-medium">{product.category.name}</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">دسته‌بندی:</span>
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{product.category.name}</span>
                 </div>
               )}
               {product.trading_style && (
                 <div>
-                  <span className="text-sm font-semibold text-gray-600 block mb-1">سبک معاملاتی:</span>
-                  <span className="text-gray-800 font-medium">{product.trading_style}</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">سبک معاملاتی:</span>
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{product.trading_style}</span>
                 </div>
               )}
               {product.trading_session && (
                 <div>
-                  <span className="text-sm font-semibold text-gray-600 block mb-1">جلسه معاملاتی:</span>
-                  <span className="text-gray-800 font-medium">{product.trading_session}</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">جلسه معاملاتی:</span>
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{product.trading_session}</span>
                 </div>
               )}
               {product.backtest_trades_count && (
                 <div>
-                  <span className="text-sm font-semibold text-gray-600 block mb-1">تعداد معاملات بکتست:</span>
-                  <span className="text-gray-800 font-medium">{product.backtest_trades_count} معامله</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 block mb-1">تعداد معاملات بکتست:</span>
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{product.backtest_trades_count} معامله</span>
                 </div>
               )}
             </div>
 
             {product.backtest_results && (
-              <div className="mb-4 pt-4 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 block mb-2">نتایج بکتست:</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <pre className="text-xs text-gray-700 font-mono overflow-x-auto">
+              <div className="mb-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2">نتایج بکتست:</h3>
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <pre className="text-xs text-gray-700 dark:text-gray-300 font-mono overflow-x-auto">
                     {JSON.stringify(product.backtest_results, null, 2)}
                   </pre>
                 </div>
@@ -203,13 +203,13 @@ export default function ProductDetailPage() {
             )}
             
             {product.keywords && product.keywords.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <span className="text-sm font-semibold text-gray-700 block mb-2">کلمات کلیدی:</span>
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2">کلمات کلیدی:</span>
                 <div className="flex flex-wrap gap-2">
                   {product.keywords.map((keyword, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium"
+                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium"
                     >
                       {keyword}
                     </span>
@@ -220,10 +220,10 @@ export default function ProductDetailPage() {
           </div>
 
           {product.courses && product.courses.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">دوره‌های این محصول</h2>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <h2 className="text-xl font-semibold dark:text-gray-100">دوره‌های این محصول</h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                   {product.courses.length} دوره
                 </span>
               </div>
@@ -231,12 +231,12 @@ export default function ProductDetailPage() {
                 {product.courses.map((course) => (
                   <Card key={course.id}>
                     <Link href={`/courses/${course.id}`}>
-                      <h3 className="font-semibold mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                      <h3 className="font-semibold mb-2 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">
                         {course.title}
                       </h3>
                     </Link>
-                    <p className="text-gray-600 text-sm mb-3">{course.description}</p>
-                    <div className="flex gap-4 text-xs text-gray-500 mb-3">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{course.description}</p>
+                    <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
                       {course.duration_minutes && course.duration_minutes > 0 && (
                         <span>⏱️ مدت زمان: {course.duration_minutes} دقیقه</span>
                       )}
@@ -259,46 +259,46 @@ export default function ProductDetailPage() {
         <div className="lg:col-span-1">
           <Card>
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">اطلاعات محصول</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">اطلاعات محصول</h3>
               
-              <div className="space-y-4 mb-4 pb-4 border-b border-gray-200">
+              <div className="space-y-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">قیمت محصول:</span>
-                  <span className="text-2xl font-bold text-blue-600">${product.price}</span>
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">قیمت محصول:</span>
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">${product.price}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">نرخ برد:</span>
-                  <span className="text-lg font-semibold text-green-600">
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">نرخ برد:</span>
+                  <span className="text-lg font-semibold text-green-600 dark:text-green-400">
                     {product.winrate}%
                   </span>
                 </div>
                 {product.courses && product.courses.length > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">تعداد دوره‌ها:</span>
-                    <span className="font-medium">{product.courses.length} دوره</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">تعداد دوره‌ها:</span>
+                    <span className="font-medium dark:text-gray-300">{product.courses.length} دوره</span>
                   </div>
                 )}
                 {product.files && product.files.length > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">تعداد فایل‌ها:</span>
-                    <span className="font-medium">{product.files.length} فایل</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">تعداد فایل‌ها:</span>
+                    <span className="font-medium dark:text-gray-300">{product.files.length} فایل</span>
                   </div>
                 )}
                 {product.category && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">دسته‌بندی:</span>
-                    <span className="font-medium">{product.category.name}</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">دسته‌بندی:</span>
+                    <span className="font-medium dark:text-gray-300">{product.category.name}</span>
                   </div>
                 )}
                 {product.backtest_trades_count && (
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">معاملات بکتست:</span>
-                    <span className="font-medium">{product.backtest_trades_count} معامله</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">معاملات بکتست:</span>
+                    <span className="font-medium dark:text-gray-300">{product.backtest_trades_count} معامله</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">وضعیت:</span>
-                  <span className={`font-medium ${product.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">وضعیت:</span>
+                  <span className={`font-medium ${product.is_active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {product.is_active ? 'فعال' : 'غیرفعال'}
                   </span>
                 </div>
@@ -325,8 +325,8 @@ export default function ProductDetailPage() {
                 <div
                   className={`p-3 rounded ${
                     discountValidation.isValid
-                      ? 'bg-green-50 text-green-700'
-                      : 'bg-red-50 text-red-700'
+                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                      : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                   }`}
                 >
                   {discountValidation.isValid ? (
@@ -346,16 +346,16 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            <div className="mb-6 p-4 bg-gray-50 rounded">
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded">
               <div className="flex justify-between items-center">
-                <span className="font-semibold">قیمت نهایی:</span>
-                <span className="text-2xl font-bold text-blue-600">${finalPrice}</span>
+                <span className="font-semibold dark:text-gray-300">قیمت نهایی:</span>
+                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">${finalPrice}</span>
               </div>
             </div>
 
             {alreadyOwned ? (
-              <div className="w-full p-4 bg-green-50 border border-green-200 rounded-lg text-center">
-                <p className="text-green-700 font-semibold">
+              <div className="w-full p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-center">
+                <p className="text-green-700 dark:text-green-300 font-semibold">
                   ✓ شما این محصول را قبلاً خریداری کرده‌اید
                 </p>
                 <Button

@@ -26,18 +26,18 @@ export default function ProductsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">همه محصولات</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">همه محصولات</h1>
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">در حال بارگذاری...</p>
+          <p className="text-gray-600 dark:text-gray-400">در حال بارگذاری...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <Card key={product.id} className="hover:shadow-xl transition-shadow">
               {product.thumbnail && (
-                <div className="mb-4 h-48 bg-gray-200 rounded-lg overflow-hidden">
+                <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
@@ -50,33 +50,33 @@ export default function ProductsPage() {
               )}
               {product.category && (
                 <div className="mb-2">
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                     {product.category.name}
                   </span>
                 </div>
               )}
               <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
-              <p className="text-gray-600 mb-4 line-clamp-3">{product.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">{product.description}</p>
               <div className="flex justify-between items-center mb-4">
                 <div>
                   {product.discountedPrice && product.discountedPrice < product.price ? (
                     <div>
-                      <span className="text-lg text-gray-400 line-through mr-2">
+                      <span className="text-lg text-gray-400 dark:text-gray-500 line-through mr-2">
                         ${product.price}
                       </span>
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         ${product.discountedPrice}
                       </span>
                     </div>
                   ) : (
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       ${product.price}
                     </span>
                   )}
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-gray-500">نرخ برد:</span>
-                  <span className="text-lg font-semibold text-green-600 mr-1">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">نرخ برد:</span>
+                  <span className="text-lg font-semibold text-green-600 dark:text-green-400 mr-1">
                     {product.winrate}%
                   </span>
                 </div>
@@ -84,26 +84,26 @@ export default function ProductsPage() {
               <div className="space-y-2 mb-4 text-sm">
                 {product.trading_style && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">سبک:</span>
-                    <span className="font-medium">{product.trading_style}</span>
+                    <span className="text-gray-500 dark:text-gray-400">سبک:</span>
+                    <span className="font-medium dark:text-gray-300">{product.trading_style}</span>
                   </div>
                 )}
                 {product.trading_session && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">جلسه:</span>
-                    <span className="font-medium">{product.trading_session}</span>
+                    <span className="text-gray-500 dark:text-gray-400">جلسه:</span>
+                    <span className="font-medium dark:text-gray-300">{product.trading_session}</span>
                   </div>
                 )}
                 {product.backtest_trades_count && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">تعداد معاملات بکتست:</span>
-                    <span className="font-medium">{product.backtest_trades_count}</span>
+                    <span className="text-gray-500 dark:text-gray-400">تعداد معاملات بکتست:</span>
+                    <span className="font-medium dark:text-gray-300">{product.backtest_trades_count}</span>
                   </div>
                 )}
                 {product.courses && product.courses.length > 0 && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">دوره‌ها:</span>
-                    <span className="font-medium">{product.courses.length} دوره</span>
+                    <span className="text-gray-500 dark:text-gray-400">دوره‌ها:</span>
+                    <span className="font-medium dark:text-gray-300">{product.courses.length} دوره</span>
                   </div>
                 )}
               </div>
@@ -113,13 +113,13 @@ export default function ProductsPage() {
                     {product.keywords.slice(0, 3).map((keyword, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                        className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded"
                       >
                         {keyword}
                       </span>
                     ))}
                     {product.keywords.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded">
                         +{product.keywords.length - 3}
                       </span>
                     )}

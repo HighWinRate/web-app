@@ -67,19 +67,19 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
         داشبورد کاربری
       </h1>
-      <p className="text-gray-600 mb-8">
+      <p className="text-gray-600 dark:text-gray-400 mb-8">
         خوش آمدید {user.first_name} {user.last_name}
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-2xl font-semibold mb-4">محصولات خریداری شده</h2>
+          <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">محصولات خریداری شده</h2>
           {products.length === 0 ? (
             <Card>
-              <p className="text-gray-600">شما هنوز محصولی خریداری نکرده‌اید.</p>
+              <p className="text-gray-600 dark:text-gray-400">شما هنوز محصولی خریداری نکرده‌اید.</p>
               <Link href="/products">
                 <Button variant="primary" className="mt-4">
                   مشاهده محصولات
@@ -96,55 +96,55 @@ export default function DashboardPage() {
                 return (
                   <Card key={product.id}>
                     <Link href={`/products/${productId}`}>
-                      <h3 className="font-semibold mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                      <h3 className="font-semibold mb-2 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">
                         {product.title}
                       </h3>
                     </Link>
-                    <p className="text-gray-600 text-sm mb-3">{product.description}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{product.description}</p>
                     
                     <div className="space-y-2 mb-3 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">قیمت محصول:</span>
-                        <span className="text-blue-600 font-semibold">${product.price}</span>
+                        <span className="text-gray-600 dark:text-gray-400">قیمت محصول:</span>
+                        <span className="text-blue-600 dark:text-blue-400 font-semibold">${product.price}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">نرخ برد:</span>
-                        <span className="text-green-600 font-semibold">{product.winrate}%</span>
+                        <span className="text-gray-600 dark:text-gray-400">نرخ برد:</span>
+                        <span className="text-green-600 dark:text-green-400 font-semibold">{product.winrate}%</span>
                       </div>
                       {actualProduct.category && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">دسته‌بندی:</span>
-                          <span className="font-medium">{actualProduct.category.name}</span>
+                          <span className="text-gray-600 dark:text-gray-400">دسته‌بندی:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.category.name}</span>
                         </div>
                       )}
                       {actualProduct.trading_style && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">سبک معاملاتی:</span>
-                          <span className="font-medium">{actualProduct.trading_style}</span>
+                          <span className="text-gray-600 dark:text-gray-400">سبک معاملاتی:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.trading_style}</span>
                         </div>
                       )}
                       {actualProduct.trading_session && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">جلسه معاملاتی:</span>
-                          <span className="font-medium">{actualProduct.trading_session}</span>
+                          <span className="text-gray-600 dark:text-gray-400">جلسه معاملاتی:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.trading_session}</span>
                         </div>
                       )}
                       {actualProduct.backtest_trades_count && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">معاملات بکتست:</span>
-                          <span className="font-medium">{actualProduct.backtest_trades_count} معامله</span>
+                          <span className="text-gray-600 dark:text-gray-400">معاملات بکتست:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.backtest_trades_count} معامله</span>
                         </div>
                       )}
                       {actualProduct.courses && actualProduct.courses.length > 0 && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">تعداد دوره‌ها:</span>
-                          <span className="font-medium">{actualProduct.courses.length} دوره</span>
+                          <span className="text-gray-600 dark:text-gray-400">تعداد دوره‌ها:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.courses.length} دوره</span>
                         </div>
                       )}
                       {actualProduct.files && actualProduct.files.length > 0 && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">تعداد فایل‌ها:</span>
-                          <span className="font-medium">{actualProduct.files.length} فایل</span>
+                          <span className="text-gray-600 dark:text-gray-400">تعداد فایل‌ها:</span>
+                          <span className="font-medium dark:text-gray-300">{actualProduct.files.length} فایل</span>
                         </div>
                       )}
                       {actualProduct.keywords && actualProduct.keywords.length > 0 && (
@@ -152,13 +152,13 @@ export default function DashboardPage() {
                           {actualProduct.keywords.slice(0, 3).map((keyword: string, idx: number) => (
                             <span
                               key={idx}
-                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded"
                             >
                               {keyword}
                             </span>
                           ))}
                           {actualProduct.keywords.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded">
                               +{actualProduct.keywords.length - 3}
                             </span>
                           )}
@@ -166,8 +166,8 @@ export default function DashboardPage() {
                       )}
                       {purchaseDate && (
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">تاریخ خرید:</span>
-                          <span className="font-medium text-xs">
+                          <span className="text-gray-600 dark:text-gray-400">تاریخ خرید:</span>
+                          <span className="font-medium dark:text-gray-300 text-xs">
                             {new Date(purchaseDate).toLocaleDateString('fa-IR', {
                               year: 'numeric',
                               month: 'long',
@@ -191,45 +191,45 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold mb-4">دوره‌های قابل دسترسی</h2>
+          <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">دوره‌های قابل دسترسی</h2>
           {courses.length === 0 ? (
             <Card>
-              <p className="text-gray-600">شما به هیچ دوره‌ای دسترسی ندارید.</p>
+              <p className="text-gray-600 dark:text-gray-400">شما به هیچ دوره‌ای دسترسی ندارید.</p>
             </Card>
           ) : (
             <div className="space-y-4">
               {courses.map((course) => (
                 <Card key={course.id}>
                   <Link href={`/courses/${course.id}`}>
-                    <h3 className="font-semibold mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                    <h3 className="font-semibold mb-2 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors">
                       {course.title}
                     </h3>
                   </Link>
-                  <p className="text-gray-600 text-sm mb-3">{course.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{course.description}</p>
                   
                   <div className="space-y-2 mb-3 text-sm">
                     {course.category && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">دسته‌بندی:</span>
-                        <span className="font-medium">{course.category.name}</span>
+                        <span className="text-gray-600 dark:text-gray-400">دسته‌بندی:</span>
+                        <span className="font-medium dark:text-gray-300">{course.category.name}</span>
                       </div>
                     )}
                     {course.duration_minutes && course.duration_minutes > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">مدت زمان دوره:</span>
-                        <span className="font-medium">{course.duration_minutes} دقیقه</span>
+                        <span className="text-gray-600 dark:text-gray-400">مدت زمان دوره:</span>
+                        <span className="font-medium dark:text-gray-300">{course.duration_minutes} دقیقه</span>
                       </div>
                     )}
                     {course.files && course.files.length > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">تعداد فایل‌ها:</span>
-                        <span className="font-medium">{course.files.length} فایل</span>
+                        <span className="text-gray-600 dark:text-gray-400">تعداد فایل‌ها:</span>
+                        <span className="font-medium dark:text-gray-300">{course.files.length} فایل</span>
                       </div>
                     )}
                     {course.is_active !== undefined && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">وضعیت:</span>
-                        <span className={`font-medium ${course.is_active ? 'text-green-600' : 'text-red-600'}`}>
+                        <span className="text-gray-600 dark:text-gray-400">وضعیت:</span>
+                        <span className={`font-medium ${course.is_active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                           {course.is_active ? 'فعال' : 'غیرفعال'}
                         </span>
                       </div>
@@ -240,13 +240,13 @@ export default function DashboardPage() {
                           {course.keywords.slice(0, 3).map((keyword, idx) => (
                             <span
                               key={idx}
-                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded"
                             >
                               {keyword}
                             </span>
                           ))}
                           {course.keywords.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded">
                               +{course.keywords.length - 3}
                             </span>
                           )}
@@ -268,10 +268,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">فایل‌های قابل دانلود</h2>
+        <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">فایل‌های قابل دانلود</h2>
         {files.length === 0 ? (
           <Card>
-            <p className="text-gray-600">شما به هیچ فایلی دسترسی ندارید.</p>
+            <p className="text-gray-600 dark:text-gray-400">شما به هیچ فایلی دسترسی ندارید.</p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -280,16 +280,16 @@ export default function DashboardPage() {
                 <h3 className="font-semibold mb-3">{file.name}</h3>
                 <div className="space-y-2 mb-3 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">نوع فایل:</span>
-                    <span className="font-medium uppercase">{file.type}</span>
+                    <span className="text-gray-600 dark:text-gray-400">نوع فایل:</span>
+                    <span className="font-medium dark:text-gray-300 uppercase">{file.type}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">حجم فایل:</span>
-                    <span className="font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                    <span className="text-gray-600 dark:text-gray-400">حجم فایل:</span>
+                    <span className="font-medium dark:text-gray-300">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">وضعیت:</span>
-                    <span className={`font-medium ${file.isFree ? 'text-green-600' : 'text-blue-600'}`}>
+                    <span className="text-gray-600 dark:text-gray-400">وضعیت:</span>
+                    <span className={`font-medium ${file.isFree ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
                       {file.isFree ? 'رایگان' : 'پولی'}
                     </span>
                   </div>
@@ -309,19 +309,19 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">تراکنش‌های من</h2>
+        <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">تراکنش‌های من</h2>
         {transactions.length === 0 ? (
           <Card>
-            <p className="text-gray-600">شما هنوز تراکنشی ندارید.</p>
+            <p className="text-gray-600 dark:text-gray-400">شما هنوز تراکنشی ندارید.</p>
           </Card>
         ) : (
           <div className="space-y-4">
             {transactions.map((transaction) => {
               const statusColors = {
-                pending: 'bg-yellow-100 text-yellow-800',
-                completed: 'bg-green-100 text-green-800',
-                failed: 'bg-red-100 text-red-800',
-                cancelled: 'bg-gray-100 text-gray-800',
+                pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
+                completed: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+                failed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+                cancelled: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
               };
 
               const statusLabels = {
@@ -335,10 +335,10 @@ export default function DashboardPage() {
                 <Card key={transaction.id}>
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-2">
+                      <h3 className="font-semibold text-lg mb-2 dark:text-gray-200">
                         {transaction.product?.title || 'محصول حذف شده'}
                       </h3>
-                      <div className="space-y-1 text-sm text-gray-600">
+                      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                         <p>
                           <span className="font-medium">مبلغ:</span> ${transaction.amount}
                         </p>
