@@ -51,9 +51,13 @@ export default function CourseDetailPage() {
     }
   }, [isAuthenticated, user, course]);
 
-  const handleDownloadFile = (fileId: string) => {
-    const url = apiClient.getFileUrl(fileId);
-    window.open(url, '_blank');
+  const handleDownloadFile = async (fileId: string) => {
+    try {
+      await apiClient.downloadFile(fileId);
+    } catch (error: any) {
+      console.error('Error downloading file:', error);
+      alert(error.message || 'خطا در دانلود فایل');
+    }
   };
 
   if (loading) {
