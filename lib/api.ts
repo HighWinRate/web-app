@@ -400,6 +400,7 @@ export class ApiClient {
     const url = `${this.baseUrl}/file/serve/${fileId}`;
     const headers: Record<string, string> = {};
     
+    // Token is optional - free files can be downloaded without authentication
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
@@ -410,7 +411,9 @@ export class ApiClient {
         headers,
       });
 
-      if (response.status === 401) {
+      // Only redirect to login if we had a token and got 401 (token expired/invalid)
+      // For free files, 401 shouldn't happen, but if it does, we don't redirect
+      if (response.status === 401 && this.token) {
         this.setToken(null);
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
@@ -419,6 +422,7 @@ export class ApiClient {
       }
 
       if (!response.ok) {
+        // Try to get error message from response
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message || `HTTP error! status: ${response.status}`
