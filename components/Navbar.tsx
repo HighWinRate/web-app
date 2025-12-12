@@ -12,22 +12,34 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <a href="http://localhost:3003" className="text-xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+            <a
+              href="http://localhost:3003"
+              className="text-xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+            >
               High Win Rate
             </a>
           </div>
-          
+
           <div className="flex items-center space-x-4">
-            <Link href="/products" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <Link
+              href="/products"
+              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
               محصولات
             </Link>
-            
+
             {isAuthenticated ? (
               <>
-                <Link href="/dashboard" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <Link
+                  href="/dashboard"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
                   داشبورد
                 </Link>
-                <Link href="/profile" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <Link
+                  href="/profile"
+                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
                   پروفایل
                 </Link>
                 {user && (
@@ -42,10 +54,14 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="outline" size="sm">ورود</Button>
+                  <Button variant="outline" size="sm">
+                    ورود
+                  </Button>
                 </Link>
                 <Link href="/register">
-                  <Button variant="primary" size="sm">ثبت‌نام</Button>
+                  <Button variant="primary" size="sm">
+                    ثبت‌نام
+                  </Button>
                 </Link>
               </>
             )}
@@ -55,4 +71,3 @@ export function Navbar() {
     </nav>
   );
 }
-
