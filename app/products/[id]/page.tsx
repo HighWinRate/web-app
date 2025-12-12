@@ -190,13 +190,15 @@ export default function ProductDetailPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{product.title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 animate-fade-in-up">
+            {product.title}
+          </h1>
           {product.thumbnail && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900/50 overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
               <img
                 src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/product/${product.id}/thumbnail`}
                 alt={product.title}
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-full h-96 object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
@@ -204,7 +206,7 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900/50 p-8 mb-6 border border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">توضیحات محصول</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">{product.description}</p>
             
@@ -296,10 +298,10 @@ export default function ProductDetailPage() {
           </div>
 
           {product.files && product.files.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold dark:text-gray-200">فایل‌های این محصول</h2>
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900/50 p-8 mb-6 border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold dark:text-white">فایل‌های این محصول</h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-4 py-2 rounded-full font-medium">
                   {product.files.length} فایل
                 </span>
               </div>
@@ -352,10 +354,10 @@ export default function ProductDetailPage() {
           )}
 
           {product.courses && product.courses.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/50 p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold dark:text-gray-100">دوره‌های این محصول</h2>
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-gray-900/50 p-8 mb-6 border border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold dark:text-white">دوره‌های این محصول</h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-4 py-2 rounded-full font-medium">
                   {product.courses.length} دوره
                 </span>
               </div>
@@ -389,9 +391,9 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <Card>
+          <Card className="sticky top-24">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">اطلاعات محصول</h3>
+              <h3 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">اطلاعات محصول</h3>
               
               <div className="space-y-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
@@ -478,21 +480,21 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <div className="mb-6 p-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/30 rounded-xl border border-primary-200 dark:border-primary-700">
               <div className="flex justify-between items-center">
-                <span className="font-semibold dark:text-gray-300">قیمت نهایی:</span>
-                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">${finalPrice}</span>
+                <span className="font-bold text-gray-900 dark:text-white">قیمت نهایی:</span>
+                <span className="text-3xl font-bold text-primary-600 dark:text-primary-400">${finalPrice}</span>
               </div>
             </div>
 
             {alreadyOwned ? (
-              <div className="w-full p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-center">
-                <p className="text-green-700 dark:text-green-300 font-semibold">
+              <div className="w-full p-6 bg-green-50 dark:bg-green-900/30 border-2 border-green-200 dark:border-green-800 rounded-xl text-center">
+                <p className="text-green-700 dark:text-green-300 font-bold text-lg mb-4">
                   ✓ شما این محصول را قبلاً خریداری کرده‌اید
                 </p>
                 <Button
-                  className="w-full mt-3"
-                  variant="outline"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white"
+                  variant="primary"
                   onClick={() => router.push('/dashboard')}
                 >
                   مشاهده محصولات خریداری شده
@@ -500,7 +502,7 @@ export default function ProductDetailPage() {
               </div>
             ) : (
               <Button
-                className="w-full"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white text-lg py-3 font-semibold"
                 onClick={handlePurchase}
                 isLoading={purchasing || checkingOwnership}
                 disabled={checkingOwnership}

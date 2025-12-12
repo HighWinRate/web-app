@@ -336,6 +336,10 @@ export class ApiClient {
     return this.get<Product>(`/product/${id}`);
   }
 
+  getProductThumbnailUrl(productId: string): string {
+    return `${this.baseUrl}/product/${productId}/thumbnail`;
+  }
+
   // Course endpoints
   async getCourses(): Promise<Course[]> {
     return this.get<Course[]>('/course');

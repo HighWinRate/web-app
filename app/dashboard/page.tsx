@@ -71,16 +71,18 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">
-        داشبورد کاربری
-      </h1>
-      <p className="text-gray-600 dark:text-gray-400 mb-8">
-        خوش آمدید {user.first_name} {user.last_name}
-      </p>
+      <div className="mb-12 animate-fade-in-up">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          داشبورد کاربری
+        </h1>
+        <p className="text-xl text-gray-600 dark:text-gray-300">
+          خوش آمدید <span className="font-semibold text-primary-600 dark:text-primary-400">{user.first_name} {user.last_name}</span>
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">محصولات خریداری شده</h2>
+          <h2 className="text-3xl font-bold mb-6 dark:text-white">محصولات خریداری شده</h2>
           {products.length === 0 ? (
             <Card>
               <p className="text-gray-600 dark:text-gray-400">شما هنوز محصولی خریداری نکرده‌اید.</p>
@@ -98,13 +100,13 @@ export default function DashboardPage() {
                 const actualProduct = (product as any).product || product;
                 const purchaseDate = (product as any).purchased_at;
                 return (
-                  <Card key={product.id}>
+                  <Card key={product.id} className="hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
                     {actualProduct.thumbnail && (
-                      <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                      <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden">
                         <img
                           src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/product/${productId}/thumbnail`}
                           alt={product.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
@@ -207,7 +209,7 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">دوره‌های قابل دسترسی</h2>
+          <h2 className="text-3xl font-bold mb-6 dark:text-white">دوره‌های قابل دسترسی</h2>
           {courses.length === 0 ? (
             <Card>
               <p className="text-gray-600 dark:text-gray-400">شما به هیچ دوره‌ای دسترسی ندارید.</p>
@@ -215,13 +217,13 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-4">
               {courses.map((course) => (
-                <Card key={course.id}>
+                <Card key={course.id} className="hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
                   {course.thumbnail && (
-                    <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden">
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/course/${course.id}/thumbnail`}
                         alt={course.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
@@ -295,8 +297,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">فایل‌های قابل دانلود</h2>
+      <div className="mt-12">
+        <h2 className="text-3xl font-bold mb-6 dark:text-white">فایل‌های قابل دانلود</h2>
         {files.length === 0 ? (
           <Card>
             <p className="text-gray-600 dark:text-gray-400">شما به هیچ فایلی دسترسی ندارید.</p>
@@ -304,8 +306,8 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {files.map((file) => (
-              <Card key={file.id}>
-                <h3 className="font-semibold mb-3">{file.name}</h3>
+              <Card key={file.id} className="hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
+                <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">{file.name}</h3>
                 <div className="space-y-2 mb-3 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 dark:text-gray-400">نوع فایل:</span>
@@ -323,9 +325,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <Button
-                  variant="outline"
+                  variant="primary"
                   size="sm"
-                  className="w-full"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white"
                   onClick={() => handleDownloadFile(file.id)}
                 >
                   دانلود فایل
@@ -336,8 +338,8 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4 dark:text-gray-100">تراکنش‌های من</h2>
+      <div className="mt-12">
+        <h2 className="text-3xl font-bold mb-6 dark:text-white">تراکنش‌های من</h2>
         {transactions.length === 0 ? (
           <Card>
             <p className="text-gray-600 dark:text-gray-400">شما هنوز تراکنشی ندارید.</p>
@@ -360,7 +362,7 @@ export default function DashboardPage() {
               };
 
               return (
-                <Card key={transaction.id}>
+                <Card key={transaction.id} className="hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg mb-2 dark:text-gray-200">

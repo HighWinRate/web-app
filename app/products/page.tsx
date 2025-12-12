@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiClient, Product } from '@/lib/api';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -24,116 +22,147 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">همه محصولات</h1>
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('fa-IR').format(price);
+  };
 
-      {loading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400">در حال بارگذاری...</p>
+  const getThumbnailUrl = (product: Product) => {
+    if (product.thumbnail) {
+      return apiClient.getProductThumbnailUrl(product.id);
+    }
+    return null;
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
+              در حال بارگذاری...
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <Card key={product.id} className="hover:shadow-xl transition-shadow">
-              {product.thumbnail && (
-                <div className="mb-4 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/product/${product.id}/thumbnail`}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-              {product.category && (
-                <div className="mb-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                    {product.category.name}
-                  </span>
-                </div>
-              )}
-              <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">{product.description}</p>
-              <div className="flex justify-between items-center mb-4">
-                <div>
-                  {product.discountedPrice && product.discountedPrice < product.price ? (
-                    <div>
-                      <span className="text-lg text-gray-400 dark:text-gray-500 line-through mr-2">
-                        ${product.price}
-                      </span>
-                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        ${product.discountedPrice}
-                      </span>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-20 bg-white dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            همه محصولات
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            بهترین استراتژی‌های معاملاتی با بالاترین نرخ برد
+          </p>
+        </div>
+
+        {products.length === 0 ? (
+          <div className="text-center text-gray-600 dark:text-gray-400">
+            محصولی یافت نشد
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => {
+              const thumbnailUrl = getThumbnailUrl(product);
+              const finalPrice = product.discountedPrice || product.price;
+              const hasDiscount =
+                product.discountedPrice &&
+                product.discountedPrice < product.price;
+
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 group"
+                >
+                  {thumbnailUrl ? (
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={thumbnailUrl}
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                      {hasDiscount && (
+                        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                          تخفیف
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      ${product.price}
-                    </span>
+                    <div className="h-48 bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                      <span className="text-6xl text-white opacity-50">📈</span>
+                    </div>
                   )}
-                </div>
-                <div className="text-right">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">نرخ برد:</span>
-                  <span className="text-lg font-semibold text-green-600 dark:text-green-400 mr-1">
-                    {product.winrate}%
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-2 mb-4 text-sm">
-                {product.trading_style && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 dark:text-gray-400">سبک:</span>
-                    <span className="font-medium dark:text-gray-300">{product.trading_style}</span>
-                  </div>
-                )}
-                {product.trading_session && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 dark:text-gray-400">جلسه:</span>
-                    <span className="font-medium dark:text-gray-300">{product.trading_session}</span>
-                  </div>
-                )}
-                {product.backtest_trades_count && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 dark:text-gray-400">تعداد معاملات بکتست:</span>
-                    <span className="font-medium dark:text-gray-300">{product.backtest_trades_count}</span>
-                  </div>
-                )}
-                {product.courses && product.courses.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 dark:text-gray-400">دوره‌ها:</span>
-                    <span className="font-medium dark:text-gray-300">{product.courses.length} دوره</span>
-                  </div>
-                )}
-              </div>
-              {product.keywords && product.keywords.length > 0 && (
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {product.keywords.slice(0, 3).map((keyword, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                    {product.keywords.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded">
-                        +{product.keywords.length - 3}
-                      </span>
+
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      {product.category && (
+                        <span className="text-sm text-primary-600 dark:text-primary-400 font-medium">
+                          {product.category.name}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <span className="text-yellow-500">⭐</span>
+                        <span className="font-bold text-gray-900 dark:text-white">
+                          {product.winrate.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                      {product.title}
+                    </h3>
+
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 text-sm">
+                      {product.description}
+                    </p>
+
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        {hasDiscount ? (
+                          <>
+                            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                              {formatPrice(finalPrice)} تومان
+                            </span>
+                            <span className="text-sm text-gray-500 line-through">
+                              {formatPrice(product.price)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {formatPrice(product.price)} تومان
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {product.backtest_trades_count && (
+                      <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        📊{' '}
+                        {product.backtest_trades_count.toLocaleString('fa-IR')}{' '}
+                        معامله بکتست شده
+                      </div>
                     )}
+
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="block w-full text-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors duration-300"
+                    >
+                      مشاهده جزئیات
+                    </Link>
                   </div>
                 </div>
-              )}
-              <Link href={`/products/${product.id}`}>
-                <Button className="w-full">مشاهده جزئیات</Button>
-              </Link>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
-
