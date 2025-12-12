@@ -12,9 +12,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            <a href="http://localhost:3003" className="text-xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
               High Win Rate
-            </Link>
+            </a>
           </div>
           
           <div className="flex items-center space-x-4">
