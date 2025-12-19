@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiClient, User } from '@/lib/api';
+import { createClient } from '@/lib/supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -18,69 +19,146 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = apiClient.getToken();
-    if (token) {
-      // Try to decode JWT to get user info
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const userId = payload.sub;
+    // Check Supabase session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // Set token in API client
+        apiClient.setToken(session.access_token);
         
-        // Fetch full user data from API
-        apiClient.getUser(userId)
+        // Fetch user profile from our API
+        apiClient.getUser(session.user.id)
           .then((fullUser) => {
             setUser(fullUser);
             setLoading(false);
           })
           .catch((error) => {
             console.error('Error fetching user data:', error);
-            // If fetch fails (e.g., 401/403), don't set user - let it redirect
-            if (error?.status === 401 || error?.status === 403) {
-              // Token might be invalid, clear it
-              apiClient.logout();
-              setUser(null);
-            } else {
-              // For other errors, use basic info from token
-              setUser({
-                id: userId,
-                email: payload.email || '',
-                first_name: '',
-                last_name: '',
-                role: payload.role || 'user',
-              });
-            }
+            // If fetch fails, try to use basic info from Supabase user
+            setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              first_name: session.user.user_metadata?.first_name || '',
+              last_name: session.user.user_metadata?.last_name || '',
+              role: (session.user.user_metadata?.role as 'user' | 'admin') || 'user',
+            });
             setLoading(false);
           });
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        // If token is invalid, clear it
-        apiClient.logout();
+      } else {
         setLoading(false);
       }
-    } else {
-      setLoading(false);
-    }
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        apiClient.setToken(session.access_token);
+        // Fetch user profile
+        apiClient.getUser(session.user.id)
+          .then((fullUser) => {
+            setUser(fullUser);
+          })
+          .catch(() => {
+            // Use basic info from Supabase
+            setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              first_name: session.user.user_metadata?.first_name || '',
+              last_name: session.user.user_metadata?.last_name || '',
+              role: (session.user.user_metadata?.role as 'user' | 'admin') || 'user',
+            });
+          });
+      } else {
+        apiClient.setToken(null);
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await apiClient.login({ email, password });
-    if (response.access_token) {
-      apiClient.setToken(response.access_token);
+    // Use Supabase Auth for login
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw new Error(error.message);
     }
-    setUser(response.user);
+
+    if (data.session) {
+      // Set token in API client
+      apiClient.setToken(data.session.access_token);
+      
+      // Fetch user profile from our API
+      const fullUser = await apiClient.getUser(data.user.id);
+      setUser(fullUser);
+    }
   };
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
-    const response = await apiClient.register({ email, password, first_name: firstName, last_name: lastName });
-    if (response.access_token) {
-      apiClient.setToken(response.access_token);
+    // Use Supabase Auth for registration
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          role: 'user',
+        },
+      },
+    });
+
+    if (error) {
+      throw new Error(error.message);
     }
-    setUser(response.user);
+
+    if (data.session && data.user) {
+      // Set token in API client
+      apiClient.setToken(data.session.access_token);
+      
+      const userId = data.user.id; // Store userId to avoid TypeScript null check issues
+      
+      // Fetch user profile from our API (after backend creates it)
+      // Wait a bit for backend to create the profile
+      setTimeout(async () => {
+        try {
+          const fullUser = await apiClient.getUser(userId);
+          setUser(fullUser);
+        } catch {
+          // If profile not ready yet, use basic info
+          setUser({
+            id: userId,
+            email: data.user?.email || '',
+            first_name: firstName,
+            last_name: lastName,
+            role: 'user',
+          });
+        }
+      }, 500);
+    } else if (data.user) {
+      // Email confirmation required
+      setUser({
+        id: data.user.id,
+        email: data.user.email || '',
+        first_name: firstName,
+        last_name: lastName,
+        role: 'user',
+      });
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     apiClient.logout();
     setUser(null);
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const [files, setFiles] = useState<FileType[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const hasFetchedRef = useRef<string | null>(null); // Track which user ID we've fetched for
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -23,28 +24,47 @@ export default function DashboardPage() {
       return;
     }
 
-    if (user) {
+    // Only fetch if we have a user ID and haven't fetched for this user yet
+    if (user?.id && !loading && hasFetchedRef.current !== user.id) {
+      const userId = user.id;
+      hasFetchedRef.current = userId; // Mark as fetched
+      let isMounted = true;
+      
       async function fetchData() {
         try {
           const [coursesData, productsData, filesData, transactionsData] = await Promise.all([
-            apiClient.getUserCourses(user.id),
-            apiClient.getOwnedProducts(user.id),
-            apiClient.getUserFiles(user.id),
+            apiClient.getUserCourses(userId),
+            apiClient.getOwnedProducts(userId),
+            apiClient.getUserFiles(userId),
             apiClient.getMyTransactions(),
           ]);
-          setCourses(coursesData);
-          setProducts(productsData);
-          setFiles(filesData);
-          setTransactions(transactionsData);
+          
+          if (isMounted) {
+            setCourses(coursesData);
+            setProducts(productsData);
+            setFiles(filesData);
+            setTransactions(transactionsData);
+          }
         } catch (error) {
           console.error('Error fetching data:', error);
         } finally {
-          setLoadingData(false);
+          if (isMounted) {
+            setLoadingData(false);
+          }
         }
       }
+      
+      setLoadingData(true);
       fetchData();
+      
+      return () => {
+        isMounted = false;
+      };
+    } else if (!loading && !user) {
+      hasFetchedRef.current = null; // Reset when user logs out
+      setLoadingData(false);
     }
-  }, [user, isAuthenticated, loading, router]);
+  }, [user?.id, isAuthenticated, loading]); // Only depend on user.id, not the whole user object
 
   if (loading || loadingData) {
     return (
