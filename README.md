@@ -94,8 +94,25 @@ frontend/
 # API URL
 NEXT_PUBLIC_API_URL=http://localhost:3000
 
+# Landing Page URL (برای لینک "High Win Rate" در Navbar)
+NEXT_PUBLIC_LANDING_URL=http://localhost:3003
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
 # Next.js Configuration
 NEXT_PUBLIC_APP_NAME=High Win Rate
+```
+
+**⚠️ برای Production (Vercel/Deployment):**
+در Vercel یا platform deploy، این environment variables را تنظیم کنید:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.highwinrate.com
+NEXT_PUBLIC_LANDING_URL=https://highwinrate.com
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### پورت پیش‌فرض
