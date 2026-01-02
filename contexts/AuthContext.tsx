@@ -1,15 +1,30 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiClient, User } from '@/lib/api';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  ReactNode,
+} from 'react';
+import { User } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
+import { getUserProfile } from '@/lib/data/users';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => void;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<User | null>;
   updateUser: (updatedUser: User) => void;
   isAuthenticated: boolean;
 }
@@ -17,176 +32,114 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+
+  const fetchProfile = useCallback(
+    async (userId: string | null): Promise<User | null> => {
+      if (!userId) {
+        setUser(null);
+        return null;
+      }
+      const profile = await getUserProfile(supabase, userId);
+      setUser(profile);
+      return profile;
+    },
+    [supabase],
+  );
 
   useEffect(() => {
     let isMounted = true;
-    
-    async function initializeAuth() {
-      // Check for token in localStorage first (from backend API)
-      const token = apiClient.getToken();
-      
-      if (token) {
-        // We have a token, try to get user info from Supabase session or backend
-        try {
-          // First try Supabase session (faster)
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          if (session && session.user) {
-            // We have a Supabase session, get full user from backend
-            try {
-              const fullUser = await apiClient.getUser(session.user.id);
-              if (isMounted) {
-                setUser(fullUser);
-                setLoading(false);
-              }
-            } catch (userError) {
-              // If backend user fetch fails, try to decode token or use session data
-              console.warn('[AuthContext] Failed to fetch user from backend, using session data:', userError);
-              // Create a minimal user object from session
-              if (isMounted && session.user) {
-                setUser({
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  first_name: session.user.user_metadata?.first_name || '',
-                  last_name: session.user.user_metadata?.last_name || '',
-                  role: session.user.user_metadata?.role || 'user',
-                } as User);
-                setLoading(false);
-              }
-            }
-          } else {
-            // No Supabase session, but we have a token
-            // This shouldn't happen normally, but handle it gracefully
-            console.warn('[AuthContext] Token exists but no Supabase session found');
-            if (isMounted) {
-              setUser(null);
-              setLoading(false);
-            }
-          }
-        } catch (error) {
-          console.error('[AuthContext] Error initializing auth:', error);
-          if (isMounted) {
-            setUser(null);
-            setLoading(false);
-          }
-        }
-      } else {
-        // No token, check Supabase session as fallback
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          if (session && session.user) {
-            apiClient.setToken(session.access_token);
-            // Try to get user from backend
-            try {
-              const fullUser = await apiClient.getUser(session.user.id);
-              if (isMounted) {
-                setUser(fullUser);
-                setLoading(false);
-              }
-            } catch (userError) {
-              // Fallback to session data
-              if (isMounted && session.user) {
-                setUser({
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  first_name: session.user.user_metadata?.first_name || '',
-                  last_name: session.user.user_metadata?.last_name || '',
-                  role: session.user.user_metadata?.role || 'user',
-                } as User);
-                setLoading(false);
-              }
-            }
-          } else {
-            if (isMounted) {
-              setUser(null);
-              setLoading(false);
-            }
-          }
-        } catch (error) {
-          if (isMounted) {
-            setUser(null);
-            setLoading(false);
-          }
-        }
+
+    const syncSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!isMounted) {
+        return;
       }
-    }
-    
-    initializeAuth();
-    
+      await fetchProfile(session?.user?.id || null);
+      if (isMounted) {
+        setLoading(false);
+      }
+    };
+
+    syncSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!isMounted) return;
+      await fetchProfile(session?.user?.id || null);
+      if (isMounted) {
+        setLoading(false);
+      }
+    });
+
     return () => {
       isMounted = false;
+      subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase, fetchProfile]);
 
-  const login = async (email: string, password: string) => {
-    // First sign in with Supabase to get session
-    const { data: supabaseData, error: supabaseError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (supabaseError || !supabaseData.session || !supabaseData.user) {
-      throw new Error(supabaseError?.message || 'Invalid credentials');
-    }
-    
-    // Now use backend API for login (which handles user profile creation/updates)
-    // This ensures backend has the latest user info
-    const response = await apiClient.login({ email, password });
-    
-    if (response.access_token && response.user) {
-      // Set token in API client (use Supabase token for consistency)
-      apiClient.setToken(supabaseData.session.access_token);
-      
-      // Set user from backend response (has latest data)
-      setUser(response.user);
-    } else {
-      // Even if backend fails, we still have Supabase session
-      // Use Supabase user data as fallback
-      setUser({
-        id: supabaseData.user.id,
-        email: supabaseData.user.email || email,
-        first_name: supabaseData.user.user_metadata?.first_name || '',
-        last_name: supabaseData.user.user_metadata?.last_name || '',
-        role: supabaseData.user.user_metadata?.role || 'user',
-      } as User);
-    }
-  };
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
-    // Use backend API for registration (which handles Supabase Auth and user profile creation)
-    const response = await apiClient.register({
-      email,
-      password,
-      first_name: firstName,
-      last_name: lastName,
-    });
+      if (error) {
+        throw error;
+      }
 
-    if (response.access_token && response.user) {
-      // Set token in API client
-      apiClient.setToken(response.access_token);
-      
-      // Set user from backend response
-      setUser(response.user);
-    } else {
-      // Email confirmation required - backend didn't return session
-      // User will be created when they confirm email and login
-      setUser(null);
-    }
-  };
+      if (data.session?.user) {
+        await fetchProfile(data.session.user.id);
+      }
+    },
+    [supabase, fetchProfile],
+  );
 
-  const logout = async () => {
+  const register = useCallback(
+    async (email: string, password: string, firstName: string, lastName: string) => {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role: 'user',
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.session?.user) {
+        await fetchProfile(data.session.user.id);
+      } else {
+        setUser(null);
+      }
+    },
+    [supabase, fetchProfile],
+  );
+
+  const logout = useCallback(async () => {
     await supabase.auth.signOut();
-    apiClient.logout();
     setUser(null);
-  };
+  }, [supabase]);
 
-  const updateUser = (updatedUser: User) => {
+  const refreshUser = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const profile = await fetchProfile(session?.user?.id || null);
+    return profile;
+  }, [fetchProfile, supabase]);
+
+  const updateUser = useCallback((updatedUser: User) => {
     setUser(updatedUser);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -196,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
         updateUser,
         isAuthenticated: !!user,
       }}

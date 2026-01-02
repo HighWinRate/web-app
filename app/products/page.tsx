@@ -1,52 +1,19 @@
-'use client';
+'use server';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { apiClient, Product } from '@/lib/api';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getProducts } from '@/lib/data/products';
+import { getPublicStorageUrl } from '@/lib/storage';
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function ProductsPage() {
+  const supabase = await createServerSupabaseClient();
+  const products = await getProducts(supabase);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const data = await apiClient.getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProducts();
-  }, []);
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('fa-IR').format(price);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fa-IR').format(price);
-  };
-
-  const getThumbnailUrl = (product: Product) => {
-    if (product.thumbnail) {
-      return apiClient.getProductThumbnailUrl(product.id);
-    }
-    return null;
-  };
-
-  if (loading) {
-    return (
-      <section className="py-20 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              در حال بارگذاری...
-            </p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const getThumbnailUrl = (thumbnail?: string | null) =>
+    getPublicStorageUrl('thumbnails', thumbnail);
 
   return (
     <section className="py-20 bg-white dark:bg-gray-900">
@@ -67,7 +34,9 @@ export default function ProductsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => {
-              const thumbnailUrl = getThumbnailUrl(product);
+              const thumbnailUrl = getThumbnailUrl(
+                product.thumbnail || undefined
+              );
               const finalPrice = product.discountedPrice || product.price;
               const hasDiscount =
                 product.discountedPrice &&
@@ -84,8 +53,9 @@ export default function ProductsPage() {
                         src={thumbnailUrl}
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                        onError={(event) => {
+                          (event.target as HTMLImageElement).style.display =
+                            'none';
                         }}
                       />
                       {hasDiscount && (

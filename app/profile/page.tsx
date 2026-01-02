@@ -1,9 +1,10 @@
 'use client';
 
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -28,29 +29,13 @@ export default function ProfilePage() {
       return;
     }
 
-    if (user && user.id) {
-      // Fetch full user data to ensure we have all fields
-      apiClient.getUser(user.id)
-        .then((fullUser) => {
-          setFormData({
-            first_name: fullUser.first_name || '',
-            last_name: fullUser.last_name || '',
-            email: fullUser.email || '',
-            password: '',
-            confirmPassword: '',
-          });
-        })
-        .catch((error) => {
-          console.error('Error fetching user data:', error);
-          // Fallback to user from context
-          setFormData({
-            first_name: user.first_name || '',
-            last_name: user.last_name || '',
-            email: user.email || '',
-            password: '',
-            confirmPassword: '',
-          });
-        });
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+      }));
     }
   }, [user, isAuthenticated, loading, router]);
 
@@ -126,14 +111,23 @@ export default function ProfilePage() {
         email: formData.email.trim(),
       };
 
-      // Only include password if it's provided
       if (formData.password) {
         updateData.password = formData.password;
       }
 
-      const updatedUser = await apiClient.updateUser(user.id, updateData);
+      const response = await fetch('/api/users/update', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData),
+      });
 
-      // Update auth context
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.message || 'خطا در به‌روزرسانی مشخصات');
+      }
+
+      const updatedUser = await response.json();
+
       if (updateAuthUser) {
         updateAuthUser(updatedUser);
       }

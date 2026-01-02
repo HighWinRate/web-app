@@ -1,3 +1,48 @@
+import { redirect } from 'next/navigation';
+import DashboardClient from '@/components/DashboardClient';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getUserCourses } from '@/lib/data/courses';
+import { getUserFiles } from '@/lib/data/files';
+import {
+  getUserPurchases,
+  getUserTransactions,
+} from '@/lib/data/transactions';
+import { getUserProfile } from '@/lib/data/users';
+
+export default async function DashboardPage() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.user?.id) {
+    redirect('/login?redirectedFrom=/dashboard');
+  }
+
+  const userId = session.user.id;
+
+  const [purchases, transactions, courses, files, profile] = await Promise.all([
+    getUserPurchases(supabase, userId),
+    getUserTransactions(supabase, userId),
+    getUserCourses(supabase, userId),
+    getUserFiles(supabase, userId),
+    getUserProfile(supabase, userId),
+  ]);
+
+  if (!profile) {
+    redirect('/login?redirectedFrom=/dashboard');
+  }
+
+  return (
+    <DashboardClient
+      user={profile}
+      purchases={purchases}
+      transactions={transactions}
+      courses={courses}
+      files={files}
+    />
+  );
+}
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
