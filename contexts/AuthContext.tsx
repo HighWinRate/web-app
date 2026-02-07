@@ -9,6 +9,7 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { User } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { getUserProfile } from '@/lib/data/users';
@@ -36,28 +37,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const createFallbackUser = useCallback((sessionUser: SupabaseUser): User => ({
+    id: sessionUser.id,
+    email: sessionUser.email ?? '',
+    first_name: (sessionUser.user_metadata as any)?.first_name ?? '',
+    last_name: (sessionUser.user_metadata as any)?.last_name ?? '',
+    role: ((sessionUser.user_metadata as any)?.role as User['role']) ?? 'user',
+    avatar: undefined,
+    bio: undefined,
+    phone: undefined,
+    is_active: true,
+    last_login: undefined,
+    is_verified: sessionUser.email_confirmed_at ? true : false,
+    verification_token: undefined,
+    verification_token_expires: undefined,
+    created_at: sessionUser.created_at,
+    updated_at: undefined,
+  }), []);
+
   const fetchProfile = useCallback(
-    async (userId: string | null): Promise<User | null> => {
+    async (userId: string | null, sessionUser?: SupabaseUser): Promise<User | null> => {
       if (!userId) {
         setUser(null);
         return null;
       }
-      const profile = await getUserProfile(supabase, userId);
-      setUser(profile);
-      return profile;
+
+      try {
+        console.log('Fetching user profile for:', userId);
+        const profile = await getUserProfile(supabase, userId);
+        
+        if (profile) {
+          console.log('Profile found:', profile);
+          setUser(profile);
+          return profile;
+        }
+
+        console.warn('No profile found in database, using fallback from session');
+        if (sessionUser) {
+          const fallbackUser = createFallbackUser(sessionUser);
+          setUser(fallbackUser);
+          return fallbackUser;
+        }
+
+        console.error('No profile and no session user available');
+        setUser(null);
+        return null;
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        if (sessionUser) {
+          console.warn('Using fallback user due to error');
+          const fallbackUser = createFallbackUser(sessionUser);
+          setUser(fallbackUser);
+          return fallbackUser;
+        }
+        setUser(null);
+        return null;
+      }
     },
-    [supabase],
+    [supabase, createFallbackUser],
   );
 
   useEffect(() => {
     let isMounted = true;
 
     const syncSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!isMounted) {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (!isMounted) return;
+
+      if (error) {
+        console.error('Failed to load Supabase session:', error);
+        setUser(null);
+        setLoading(false);
         return;
       }
-      await fetchProfile(session?.user?.id || null);
+
+      if (session?.user) {
+        await fetchProfile(session.user.id, session.user);
+      } else {
+        setUser(null);
+      }
+
       if (isMounted) {
         setLoading(false);
       }
@@ -67,10 +127,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
-      await fetchProfile(session?.user?.id || null);
-      if (isMounted) {
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        setLoading(true);
+        await fetchProfile(session.user.id, session.user);
+        setLoading(false);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
         setLoading(false);
       }
     });
@@ -83,18 +148,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        throw error;
+        setLoading(false);
+        throw new Error(error.message);
       }
 
-      if (data.session?.user) {
-        await fetchProfile(data.session.user.id);
+      const sessionUser = data.user || data.session?.user;
+      if (sessionUser && data.session) {
+        await fetchProfile(sessionUser.id, sessionUser);
       }
+
+      setLoading(false);
     },
     [supabase, fetchProfile],
   );
