@@ -6,7 +6,7 @@ export async function getUserProfile(
   userId: string,
 ): Promise<User | null> {
   const { data: user, error } = await client
-    .from<User>('users')
+    .from('users')
     .select('*')
     .eq('id', userId)
     .single();
@@ -27,7 +27,7 @@ export async function updateUserProfile(
   updates: Partial<User>,
 ): Promise<User> {
   const { data: updatedUser, error } = await client
-    .from<User>('users')
+    .from('users')
     .update(updates)
     .eq('id', userId)
     .select('*')

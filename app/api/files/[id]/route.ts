@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Buffer } from 'buffer';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
@@ -13,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const { data: file, error } = await admin
     .from('files')
     .select('path, mimetype, name, "isFree"')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error || !file) {
@@ -25,7 +26,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const userId = session?.user?.id ?? null;
   const { data: canAccess } = await admin.rpc('can_access_file', {
-    file_id: params.id,
+    file_id: id,
     user_id: userId,
   });
 

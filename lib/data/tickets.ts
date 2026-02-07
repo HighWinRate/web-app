@@ -6,7 +6,7 @@ export async function getUserTickets(
   userId: string,
 ): Promise<Ticket[]> {
   const { data: tickets, error } = await client
-    .from<Ticket>('tickets')
+    .from('tickets')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
@@ -23,7 +23,7 @@ export async function getTicketById(
   ticketId: string,
 ): Promise<Ticket | null> {
   const { data: ticket, error } = await client
-    .from<Ticket>('tickets')
+    .from('tickets')
     .select('*')
     .eq('id', ticketId)
     .single();
@@ -43,7 +43,7 @@ export async function getTicketMessages(
   ticketId: string,
 ): Promise<TicketMessage[]> {
   const { data: messages, error } = await client
-    .from<TicketMessage>('ticket_messages')
+    .from('ticket_messages')
     .select('*')
     .eq('ticket_id', ticketId)
     .order('created_at', { ascending: true });
@@ -65,13 +65,13 @@ export async function getTicketWithRelations(
   }
 
   const baseUserIds = [
-    ticket.user_id,
-    ticket.assigned_to,
+    (ticket as any).user_id,
+    (ticket as any).assigned_to_id || (ticket.assigned_to as any)?.id,
   ]
     .filter((id): id is string => Boolean(id));
 
   const { data: messages, error: messagesError } = await client
-    .from<TicketMessage>('ticket_messages')
+    .from('ticket_messages')
     .select('*')
     .eq('ticket_id', ticketId)
     .order('created_at', { ascending: true });
@@ -95,7 +95,7 @@ export async function getTicketWithRelations(
   const usersMap = new Map<string, User>();
   if (allUserIds.length > 0) {
     const { data: users, error: usersError } = await client
-      .from<User>('users')
+      .from('users')
       .select('id, email, first_name, last_name, role')
       .in('id', allUserIds);
     if (usersError) {
@@ -106,11 +106,11 @@ export async function getTicketWithRelations(
 
   return {
     ...ticket,
-    user: ticket.user_id ? usersMap.get(ticket.user_id) || null : null,
-    assigned_to: ticket.assigned_to ? usersMap.get(ticket.assigned_to) || null : null,
+    user: (ticket as any).user_id ? usersMap.get((ticket as any).user_id) : undefined,
+    assigned_to: (ticket as any).assigned_to_id ? usersMap.get((ticket as any).assigned_to_id) || null : null,
     messages: (messages || []).map((message) => ({
       ...message,
-      user: message.user_id ? usersMap.get(message.user_id) || null : null,
+      user: (message as any).user_id ? usersMap.get((message as any).user_id) || null : null,
     })),
   };
 }

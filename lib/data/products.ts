@@ -11,7 +11,7 @@ function uniqueIds(ids: Array<string | undefined | null>) {
 
 export async function getProducts(client: SupabaseClient): Promise<Product[]> {
   const { data: products, error } = await client
-    .from<ProductRecord>('products')
+    .from('products')
     .select('*')
     .order('sort_order', { ascending: true });
 
@@ -29,7 +29,7 @@ export async function getProducts(client: SupabaseClient): Promise<Product[]> {
   const categoryMap = new Map<string, Category>();
   if (categoryIds.length > 0) {
     const { data: categories, error: categoryError } = await client
-      .from<Category>('categories')
+      .from('categories')
       .select('id, name, slug')
       .in('id', categoryIds);
     if (categoryError) {
@@ -44,11 +44,11 @@ export async function getProducts(client: SupabaseClient): Promise<Product[]> {
     .in('product_id', productIds);
 
   const courseIds = uniqueIds(productCourses?.map((pc) => pc.course_id) || []);
-  const courseMap = new Map<string, Course>();
+  const courseMap = new Map<string, any>();
   if (courseIds.length > 0) {
     const { data: courses, error: courseError } = await client
-      .from<Course>('courses')
-      .select('id, title')
+      .from('courses')
+      .select('*')
       .in('id', courseIds);
     if (courseError) {
       throw courseError;
@@ -65,7 +65,7 @@ export async function getProducts(client: SupabaseClient): Promise<Product[]> {
   const fileMap = new Map<string, File>();
   if (fileIds.length > 0) {
     const { data: files, error: fileError } = await client
-      .from<File>('files')
+      .from('files')
       .select('id, name, type, path, size, isFree, mimetype, url, created_at')
       .in('id', fileIds);
     if (fileError) {
@@ -107,7 +107,7 @@ export async function getProductById(
   id: string,
 ): Promise<Product | null> {
   const { data: product, error } = await client
-    .from<ProductRecord>('products')
+    .from('products')
     .select('*')
     .eq('id', id)
     .single();
@@ -124,7 +124,7 @@ export async function getProductById(
   }
 
   const { data: category } = await client
-    .from<Category>('categories')
+    .from('categories')
     .select('id, name, slug')
     .eq('id', product.category_id)
     .single();
@@ -135,11 +135,11 @@ export async function getProductById(
     .eq('product_id', id);
 
   const courseIds = uniqueIds(productCourses?.map((pc) => pc.course_id) || []);
-  let courses: Course[] = [];
+  let courses: any[] = [];
   if (courseIds.length > 0) {
     const { data: coursesData, error: courseError } = await client
-      .from<Course>('courses')
-      .select('id, title')
+      .from('courses')
+      .select('*')
       .in('id', courseIds);
     if (courseError) {
       throw courseError;
@@ -156,7 +156,7 @@ export async function getProductById(
   let files: File[] = [];
   if (fileIds.length > 0) {
     const { data: filesData, error: fileError } = await client
-      .from<File>('files')
+      .from('files')
       .select('id, name, type, path, size, isFree, mimetype, url, created_at')
       .in('id', fileIds);
     if (fileError) {

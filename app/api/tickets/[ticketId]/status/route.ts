@@ -10,7 +10,8 @@ const VALID_STATUSES: TicketStatus[] = [
   'closed',
 ];
 
-export async function PATCH(request: Request, { params }: { params: { ticketId: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ ticketId: string }> }) {
+  const { ticketId } = await params;
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
@@ -28,7 +29,7 @@ export async function PATCH(request: Request, { params }: { params: { ticketId: 
   const { error } = await supabase
     .from('tickets')
     .update({ status })
-    .eq('id', params.ticketId)
+    .eq('id', ticketId)
     .select('id');
 
   if (error) {

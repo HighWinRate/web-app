@@ -90,7 +90,7 @@ export default function TicketsClient({ tickets }: TicketsClientProps) {
           <SelectFilter
             label="وضعیت"
             value={statusFilter}
-            onChange={(value) => setStatusFilter(value)}
+            onChange={(value) => setStatusFilter(value as TicketStatus | 'all')}
             options={[
               ['all', 'همه'],
               ['open', 'باز'],
@@ -103,7 +103,7 @@ export default function TicketsClient({ tickets }: TicketsClientProps) {
           <SelectFilter
             label="اولویت"
             value={priorityFilter}
-            onChange={(value) => setPriorityFilter(value)}
+            onChange={(value) => setPriorityFilter(value as TicketPriority | 'all')}
             options={[
               ['all', 'همه'],
               ['low', 'پایین'],
@@ -115,7 +115,7 @@ export default function TicketsClient({ tickets }: TicketsClientProps) {
           <SelectFilter
             label="نوع"
             value={typeFilter}
-            onChange={(value) => setTypeFilter(value)}
+            onChange={(value) => setTypeFilter(value as TicketType | 'all')}
             options={[
               ['all', 'همه'],
               ['technical', 'فنی'],

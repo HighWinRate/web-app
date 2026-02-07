@@ -6,22 +6,23 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getTicketWithRelations } from '@/lib/data/tickets';
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function TicketDetailPage({ params }: Params) {
+  const { id } = await params;
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session?.user?.id) {
-    redirect(`/login?redirectedFrom=/tickets/${params.id}`);
+    redirect(`/login?redirectedFrom=/tickets/${id}`);
   }
 
-  const ticket = await getTicketWithRelations(supabase, params.id);
+  const ticket = await getTicketWithRelations(supabase, id);
 
   if (!ticket) {
     notFound();

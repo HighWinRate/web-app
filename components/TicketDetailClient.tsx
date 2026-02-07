@@ -13,10 +13,6 @@ interface TicketDetailClientProps {
 }
 
 const statusColors: Record<TicketStatus, string> = {
-  pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
-  completed: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
-  failed: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-  cancelled: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
   open: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
   in_progress: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
   waiting_for_user: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
@@ -25,10 +21,6 @@ const statusColors: Record<TicketStatus, string> = {
 };
 
 const statusLabels: Record<TicketStatus, string> = {
-  pending: 'در انتظار',
-  completed: 'تکمیل شده',
-  failed: 'ناموفق',
-  cancelled: 'لغو شده',
   open: 'باز',
   in_progress: 'در حال بررسی',
   waiting_for_user: 'در انتظار کاربر',

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-export async function POST(request: Request, { params }: { params: { ticketId: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ ticketId: string }> }) {
+  const { ticketId } = await params;
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
@@ -20,7 +21,7 @@ export async function POST(request: Request, { params }: { params: { ticketId: s
   }
 
   const { error } = await supabase.from('ticket_messages').insert({
-    ticket_id: params.ticketId,
+    ticket_id: ticketId,
     content: content.trim(),
     type: 'user',
     user_id: session.user.id,

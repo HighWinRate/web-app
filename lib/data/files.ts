@@ -11,7 +11,7 @@ export async function getFileById(
   id: string,
 ): Promise<FileWithRelations | null> {
   const { data: file, error } = await client
-    .from<FileType>('files')
+    .from('files')
     .select('*')
     .eq('id', id)
     .single();

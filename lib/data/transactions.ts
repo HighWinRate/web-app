@@ -12,7 +12,7 @@ export interface UserPurchaseWithProduct {
   product: Product;
 }
 
-export interface TransactionWithRelations extends Transaction {
+export interface TransactionWithRelations extends Omit<Transaction, 'product' | 'discount_code'> {
   product?: Product | null;
   discount_code?: DiscountCode | null;
 }
@@ -47,7 +47,7 @@ export async function getUserPurchases(
   }
 
   const { data: products, error: productsError } = await client
-    .from<Product>('products')
+    .from('products')
     .select('*')
     .in('id', productIds);
 
@@ -81,7 +81,7 @@ export async function getUserTransactions(
   userId: string,
 ): Promise<TransactionWithRelations[]> {
   const { data: transactions, error } = await client
-    .from<Transaction>('transactions')
+    .from('transactions')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
@@ -110,11 +110,11 @@ export async function getUserTransactions(
     ),
   ];
 
-  const productsMap = new Map<string, Product>();
+  const productsMap = new Map<string, any>();
   if (productIds.length > 0) {
     const { data: products, error: productsError } = await client
-      .from<Product>('products')
-      .select('id, title, description, price, thumbnail')
+      .from('products')
+      .select('*')
       .in('id', productIds);
     if (productsError) {
       throw productsError;
@@ -122,11 +122,11 @@ export async function getUserTransactions(
     products?.forEach((product) => productsMap.set(product.id, product));
   }
 
-  const discountCodesMap = new Map<string, DiscountCode>();
+  const discountCodesMap = new Map<string, any>();
   if (discountCodeIds.length > 0) {
     const { data: discountCodes, error: discountError } = await client
-      .from<DiscountCode>('discount_codes')
-      .select('id, code, amount, type')
+      .from('discount_codes')
+      .select('*')
       .in('id', discountCodeIds);
     if (discountError) {
       throw discountError;
