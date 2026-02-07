@@ -19,28 +19,15 @@ export default function LoginPage() {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    // Wait for auth to finish loading
+    // Don't redirect while auth is still loading
     if (loading) {
       return;
     }
 
-    // Skip on initial mount - only redirect if user becomes authenticated after mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      // But still check if user is already authenticated on mount
-      if (isAuthenticated && user && pathname === '/login') {
-        hasRedirected.current = true;
-        router.replace('/dashboard');
-        setIsLoading(false);
-      }
-      return;
-    }
-
-    // Only redirect if user is actually authenticated (not just loading)
-    // Use a ref to prevent multiple redirects
-    if (isAuthenticated && user && !hasRedirected.current && pathname === '/login') {
+    // Redirect if authenticated and on login page
+    if (isAuthenticated && user && pathname === '/login' && !hasRedirected.current) {
       hasRedirected.current = true;
-      setIsLoading(false); // Stop loading before redirect
+      setIsLoading(false);
       router.replace('/dashboard');
     }
   }, [isAuthenticated, loading, user, router, pathname]);
@@ -49,43 +36,38 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    hasRedirected.current = false; // Reset redirect flag
+    hasRedirected.current = false;
 
     try {
       await login(email, password);
-      // The login function sets the user in AuthContext
-      // The useEffect will handle the redirect once user state is updated
-      // We don't need to manually redirect here
-      // Don't set loading to false here - let the redirect happen first
-      // If redirect doesn't happen, useEffect will handle it
+      // useEffect will handle the redirect automatically
     } catch (err: any) {
       setError(err.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.');
-      hasRedirected.current = false; // Reset on error
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-10">
+        <div className="space-y-3">
+          <h2 className="text-center text-4xl font-bold text-foreground tracking-tight">
             ورود به حساب کاربری
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-center text-base text-muted-foreground">
             یا{' '}
-            <Link href="/register" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+            <Link href="/register" className="font-semibold text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline">
               ثبت‌نام کنید
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded">
+            <div className="bg-destructive/10 border-2 border-destructive/50 text-destructive px-5 py-4 rounded-lg font-medium">
               {error}
             </div>
           )}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Input
               label="ایمیل"
               type="email"
@@ -104,8 +86,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <div>
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+          <div className="pt-2">
+            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
               ورود
             </Button>
           </div>

@@ -25,51 +25,32 @@ export default function RegisterPage() {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    // Skip on initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    // Don't redirect while auth is still loading
+    if (loading) {
       return;
     }
 
-    // Only redirect if user is actually authenticated (not just loading)
-    if (!loading && isAuthenticated && user && !hasRedirected.current && pathname === '/register') {
+    // Redirect if authenticated and on register page
+    if (isAuthenticated && user && pathname === '/register' && !hasRedirected.current) {
       hasRedirected.current = true;
       router.replace('/dashboard');
     }
   }, [isAuthenticated, loading, user, router, pathname]);
-
-  // Handle redirect after successful registration
-  useEffect(() => {
-    if (registerSuccess && user && !hasRedirected.current) {
-      // User profile was created, redirect to dashboard
-      hasRedirected.current = true;
-      router.replace('/dashboard');
-    } else if (registerSuccess && !user && !hasRedirected.current) {
-      // Email confirmation required - redirect to login after showing message
-      setError('ثبت‌نام با موفقیت انجام شد. لطفاً ایمیل خود را تایید کنید و سپس وارد شوید.');
-      // Redirect to login after a delay
-      setTimeout(() => {
-        hasRedirected.current = true;
-        router.replace('/login');
-      }, 2000);
-    }
-  }, [registerSuccess, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     setRegisterSuccess(false);
+    hasRedirected.current = false;
 
     try {
       await register(formData.email, formData.password, formData.firstName, formData.lastName);
-      // Mark registration as successful
       setRegisterSuccess(true);
-      // Wait a bit for user state to update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // useEffect will handle the redirect if authenticated
+      // If email confirmation is required, user won't be authenticated yet
     } catch (err: any) {
       setError(err.message || 'خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -89,30 +70,30 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-10">
+        <div className="space-y-3">
+          <h2 className="text-center text-4xl font-bold text-foreground tracking-tight">
             ایجاد حساب کاربری
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-center text-base text-muted-foreground">
             یا{' '}
-            <Link href="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+            <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline">
               وارد شوید
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className={`px-4 py-3 rounded ${
+            <div className={`px-5 py-4 rounded-lg border-2 font-medium ${
               error.includes('موفقیت') 
-                ? 'bg-green-50 dark:bg-green-900/30 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-300'
-                : 'bg-red-50 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300'
+                ? 'bg-green-500/10 border-green-500/50 text-green-600 dark:text-green-400'
+                : 'bg-destructive/10 border-destructive/50 text-destructive'
             }`}>
               {error}
             </div>
           )}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Input
               label="نام"
               type="text"
@@ -143,13 +124,13 @@ export default function RegisterPage() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
-              placeholder="••••••••"
+              placeholder="حداقل 6 کاراکتر"
               minLength={6}
             />
           </div>
 
-          <div>
-            <Button type="submit" className="w-full" isLoading={isLoading}>
+          <div className="pt-2">
+            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
               ثبت‌نام
             </Button>
           </div>

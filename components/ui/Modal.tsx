@@ -37,29 +37,29 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
       {/* Background overlay */}
       <div
-        className="absolute inset-0 bg-gray-900 dark:bg-black bg-opacity-50 dark:bg-opacity-70 transition-opacity"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-all duration-200"
         onClick={onClose}
       />
 
       {/* Modal panel */}
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-lg shadow-xl dark:shadow-gray-900/50 w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`relative bg-card border border-border rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-200`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="px-6 py-5 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+            <h3 className="text-xl font-semibold text-card-foreground">{title}</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none transition-colors"
+              className="text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg p-1.5 transition-all"
               aria-label="بستن"
             >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -74,7 +74,7 @@ export function Modal({
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 overflow-y-auto flex-1 text-gray-900 dark:text-gray-100">{children}</div>
+        <div className="px-6 py-5 overflow-y-auto flex-1 text-card-foreground">{children}</div>
       </div>
     </div>
   );

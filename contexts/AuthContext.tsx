@@ -138,25 +138,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        setLoading(false);
         throw new Error(error.message);
       }
 
-      const sessionUser = data.user || data.session?.user;
-      if (sessionUser && data.session) {
-        await fetchProfile(sessionUser.id, sessionUser);
-      }
-
-      setLoading(false);
+      // Don't manually set loading or fetch profile here
+      // Let onAuthStateChange handle it automatically
     },
-    [supabase, fetchProfile],
+    [supabase],
   );
 
   const register = useCallback(
