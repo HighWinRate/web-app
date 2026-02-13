@@ -11,6 +11,7 @@ interface TransactionItem {
   status: string;
   created_at: string;
   product?: { id: string; title: string } | null;
+  subscription_plan?: { id: string; name: string; duration_days: number } | null;
 }
 
 export default function TransactionsListClient() {
@@ -116,7 +117,9 @@ export default function TransactionsListClient() {
                     {t.ref_id}
                   </td>
                   <td className="px-4 py-3 text-sm text-foreground">
-                    {t.product?.title ?? '—'}
+                    {t.subscription_plan
+                      ? `اشتراک ${t.subscription_plan.name}`
+                      : t.product?.title ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-sm text-foreground">
                     {formatAmount(t.amount)}

@@ -47,6 +47,12 @@ export function Navbar() {
                   تراکنش‌ها
                 </Link>
                 <Link
+                  href="/journal"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
+                >
+                  ژورنال ترید
+                </Link>
+                <Link
                   href="/dashboard"
                   className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
                 >
@@ -126,6 +132,13 @@ export function Navbar() {
                   onClick={() => setIsOpen(false)}
                 >
                   تراکنش‌ها
+                </Link>
+                <Link
+                  href="/journal"
+                  className="block py-2 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  ژورنال ترید
                 </Link>
                 <Link
                   href="/dashboard"

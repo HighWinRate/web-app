@@ -19,6 +19,7 @@ interface TransactionDetailData {
   status: string;
   created_at: string;
   product?: { id: string; title: string; price: number } | null;
+  subscription_plan?: { id: string; name: string; duration_days: number } | null;
   bank_account?: BankAccountData | null;
 }
 
@@ -51,9 +52,11 @@ export default function TransactionDetailClient({
       </div>
 
       {/* Bank card */}
-      {transaction.bank_account && isPending && (
+      {transaction.bank_account ? (
         <div>
-          <h2 className="text-lg font-semibold mb-3 text-foreground">مبلغ را به کارت زیر واریز کنید</h2>
+          <h2 className="text-lg font-semibold mb-3 text-foreground">
+            {isPending ? 'مبلغ را به کارت زیر واریز کنید' : 'شماره کارت مقصد'}
+          </h2>
           <BankCard
             cardNumber={transaction.bank_account.card_number}
             accountHolder={transaction.bank_account.account_holder}
@@ -61,14 +64,27 @@ export default function TransactionDetailClient({
             iban={transaction.bank_account.iban}
           />
         </div>
-      )}
+      ) : isPending ? (
+        <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+          <h2 className="text-lg font-semibold mb-3 text-yellow-400">
+            اطلاعات حساب بانکی
+          </h2>
+          <p className="text-gray-300">
+            اطلاعات حساب بانکی هنوز تخصیص داده نشده است. لطفاً با پشتیبانی تماس بگیرید.
+          </p>
+        </div>
+      ) : null}
 
       {/* Transaction info */}
       <div className="rounded-xl border border-border bg-card p-6 space-y-3">
         <h2 className="text-lg font-semibold mb-3 text-foreground">اطلاعات تراکنش</h2>
         <div className="flex justify-between">
           <span className="text-muted-foreground">محصول</span>
-          <span className="text-foreground">{transaction.product?.title ?? '—'}</span>
+          <span className="text-foreground">
+            {transaction.subscription_plan
+              ? `خرید اشتراک ${transaction.subscription_plan.name} (${transaction.subscription_plan.duration_days} روز)`
+              : transaction.product?.title ?? '—'}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">مبلغ نهایی</span>
@@ -125,15 +141,29 @@ export default function TransactionDetailClient({
       )}
 
       {/* Completed */}
-      {transaction.status === 'completed' && transaction.product && (
+      {transaction.status === 'completed' && (
         <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-6">
-          <p className="text-green-400 font-medium mb-3">پرداخت شما با موفقیت ثبت شد.</p>
-          <Link
-            href={`/products/${transaction.product.id}`}
-            className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:opacity-90"
-          >
-            مشاهده محصول
-          </Link>
+          <p className="text-green-400 font-medium mb-3">
+            {transaction.subscription_plan
+              ? 'پرداخت شما با موفقیت ثبت شد و اشتراک شما فعال است.'
+              : 'پرداخت شما با موفقیت ثبت شد.'}
+          </p>
+          {transaction.product && (
+            <Link
+              href={`/products/${transaction.product.id}`}
+              className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:opacity-90"
+            >
+              مشاهده محصول
+            </Link>
+          )}
+          {transaction.subscription_plan && (
+            <Link
+              href="/journal"
+              className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:opacity-90"
+            >
+              رفتن به ژورنال
+            </Link>
+          )}
         </div>
       )}
 

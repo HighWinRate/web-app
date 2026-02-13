@@ -5,11 +5,13 @@ export interface TransactionDetailRow {
   ref_id: string;
   user_id: string;
   product_id: string | null;
+  subscription_plan_id: string | null;
   amount: number;
   discount_amount: number | null;
   status: string;
   created_at: string;
   product?: { id: string; title: string; price: number } | null;
+  subscription_plan?: { id: string; name: string; duration_days: number } | null;
   bank_account?: {
     id: string;
     card_number: string;
@@ -24,6 +26,7 @@ export async function getTransactionByIdForUser(
   transactionId: string
 ): Promise<TransactionDetailRow | null> {
   const admin = createAdminClient();
+  
   const { data, error } = await admin
     .from('transactions')
     .select(
@@ -32,16 +35,19 @@ export async function getTransactionByIdForUser(
       ref_id,
       user_id,
       product_id,
+      subscription_plan_id,
+      bank_account_id,
       amount,
       discount_amount,
       status,
       created_at,
       product:products(id, title, price),
+      subscription_plan:subscription_plans(id, name, duration_days),
       bank_account:bank_accounts(id, card_number, account_holder, bank_name, iban)
     `
     )
     .eq('id', transactionId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   if (data.user_id !== userId) return null;

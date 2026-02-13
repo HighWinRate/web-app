@@ -102,6 +102,14 @@ export async function getUserTransactions(
     ),
   ];
 
+  const subscriptionPlanIds = [
+    ...new Set(
+      transactions
+        .map((transaction) => (transaction as any).subscription_plan_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
   const discountCodeIds = [
     ...new Set(
       transactions
@@ -122,6 +130,18 @@ export async function getUserTransactions(
     products?.forEach((product) => productsMap.set(product.id, product));
   }
 
+  const subscriptionPlansMap = new Map<string, any>();
+  if (subscriptionPlanIds.length > 0) {
+    const { data: plans, error: plansError } = await client
+      .from('subscription_plans')
+      .select('*')
+      .in('id', subscriptionPlanIds);
+    if (plansError) {
+      throw plansError;
+    }
+    plans?.forEach((plan) => subscriptionPlansMap.set(plan.id, plan));
+  }
+
   const discountCodesMap = new Map<string, any>();
   if (discountCodeIds.length > 0) {
     const { data: discountCodes, error: discountError } = await client
@@ -134,10 +154,13 @@ export async function getUserTransactions(
     discountCodes?.forEach((code) => discountCodesMap.set(code.id, code));
   }
 
-  return transactions.map((transaction) => ({
+  return transactions.map((transaction: any) => ({
     ...transaction,
     product: transaction.product_id
       ? productsMap.get(transaction.product_id) || null
+      : null,
+    subscription_plan: transaction.subscription_plan_id
+      ? subscriptionPlansMap.get(transaction.subscription_plan_id) || null
       : null,
     discount_code: transaction.discount_code_id
       ? discountCodesMap.get(transaction.discount_code_id) || null
