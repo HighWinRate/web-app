@@ -10,17 +10,17 @@ import Link from 'next/link';
 export default function LoginPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const { login, isAuthenticated, loading, user } = useAuth();
+  const { login, loading, user, refreshUser, updateUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    if (!loading && user) {
       router.replace('/dashboard');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +29,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
+      await refreshUser();
     } catch (err: any) {
       setError(err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.');
     } finally {
