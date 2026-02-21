@@ -15,35 +15,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const hasRedirected = useRef(false);
-  const isInitialMount = useRef(true);
 
   useEffect(() => {
-    // Don't redirect while auth is still loading
-    if (loading) {
-      return;
-    }
-
-    // Redirect if authenticated and on login page
-    if (isAuthenticated && user && pathname === '/login' && !hasRedirected.current) {
-      hasRedirected.current = true;
-      setIsLoading(false);
+    if (!loading && isAuthenticated) {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, loading, user, router, pathname]);
+  }, [loading, isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    hasRedirected.current = false;
 
     try {
       await login(email, password);
-      hasRedirected.current = true;
-      router.replace('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.');
+      setError(err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -56,8 +44,11 @@ export default function LoginPage() {
             ورود به حساب کاربری
           </h2>
           <p className="text-center text-base text-muted-foreground">
-            یا{' '}
-            <Link href="/register" className="font-semibold text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline">
+            حساب ندارید؟{' '}
+            <Link
+              href="/register"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors underline-offset-4 underline"
+            >
               ثبت‌نام کنید
             </Link>
           </p>
@@ -75,6 +66,9 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              dir="ltr"
+              lang="en"
+              className="text-left"
               placeholder="example@email.com"
             />
             <Input
@@ -83,12 +77,20 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              dir="ltr"
+              lang="en"
+              className="text-left show-password-input"
               placeholder="••••••••"
             />
           </div>
 
           <div className="pt-2">
-            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
+            <Button
+              type="submit"
+              className="w-full border-solid border-3 border-primary rounded-md"
+              size="lg"
+              isLoading={isLoading}
+            >
               ورود
             </Button>
           </div>
@@ -97,4 +99,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
