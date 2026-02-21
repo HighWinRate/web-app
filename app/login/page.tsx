@@ -20,7 +20,7 @@ export default function LoginPage() {
     if (!loading && user) {
       router.replace('/dashboard');
     }
-  }, [loading, user, router]);
+  }, [loading, isLoading, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
