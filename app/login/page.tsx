@@ -29,6 +29,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
+      updateUser(user);
       await refreshUser();
     } catch (err: any) {
       setError(err?.message || 'خطا در ورود. لطفاً دوباره تلاش کنید.');

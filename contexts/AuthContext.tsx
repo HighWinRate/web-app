@@ -26,7 +26,7 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<User | null>;
-  updateUser: (updatedUser: User) => void;
+  updateUser: (updatedUser: User | null) => void;
   isAuthenticated: boolean;
 }
 
@@ -217,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile;
   }, [fetchProfile, supabase]);
 
-  const updateUser = useCallback((updatedUser: User) => {
+  const updateUser = useCallback((updatedUser: User | null) => {
     setUser(updatedUser);
   }, []);
 
