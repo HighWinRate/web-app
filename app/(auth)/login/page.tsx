@@ -45,7 +45,7 @@ export default function LoginPage() {
         // everything ok
         router.replace('/dashboard');
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err?.message || 'خطا در ورود. دوباره تلاش کنید.');
     } finally {
       setIsLoading(false);

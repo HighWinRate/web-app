@@ -125,12 +125,6 @@ export default function ProfilePage() {
         throw new Error(payload.message || 'خطا در به‌روزرسانی مشخصات');
       }
 
-      const updatedUser = await response.json();
-
-      if (updateAuthUser) {
-        updateAuthUser(updatedUser);
-      }
-
       setSuccessMessage('مشخصات با موفقیت به‌روزرسانی شد');
 
       // Clear password fields
@@ -144,7 +138,7 @@ export default function ProfilePage() {
       setTimeout(() => {
         setSuccessMessage('');
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       setErrors({
         submit: error?.message || 'خطا در به‌روزرسانی مشخصات',

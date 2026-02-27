@@ -16,8 +16,8 @@ export function Navbar() {
     try {
       await supabase.auth.signOut();
       router.push('/login');
-    } catch (e) {
-      alert(e.message);
+    } catch (err: any) {
+      alert(err?.message);
     }
   };
 

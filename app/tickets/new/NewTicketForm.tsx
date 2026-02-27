@@ -51,7 +51,7 @@ export default function NewTicketForm() {
     };
   }, [transactionId, isAuthenticated, relatedTransactionId]);
 
-  if (!loading && !isAuthenticated) {
+  if (!isAuthenticated) {
     router.push('/login');
     return null;
   }

@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
       setRegisterSuccess(true);
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       setError(err?.message || 'خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.');
       setIsLoading(false);
     }

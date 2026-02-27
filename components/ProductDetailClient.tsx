@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -11,7 +11,6 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { supabase } from '@/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
 import { useAuth } from '@/providers/AuthProvider';
 
 interface ProductDetailClientProps {
@@ -22,7 +21,6 @@ export default function ProductDetailClient({
   product,
 }: ProductDetailClientProps) {
   const router = useRouter();
-  const [loadingUser, setLoadingUser] = useState(true);
   const [alreadyOwned, setAlreadyOwned] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
@@ -36,21 +34,6 @@ export default function ProductDetailClient({
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { user, isAuthenticated } = useAuth();
-
-  // User check
-  useEffect(() => {
-    let isMounted = true;
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!isMounted) return;
-      setUser(data.user ?? null);
-      setLoadingUser(false);
-    };
-    fetchUser();
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
 
   // ownership check
   useEffect(() => {
@@ -73,7 +56,7 @@ export default function ProductDetailClient({
     return () => {
       isMounted = false;
     };
-  }, [user, product.id, supabase]);
+  }, [user, product.id]);
   const handleValidateDiscount = useCallback(async () => {
     if (!discountCode) return;
     setValidatingDiscount(true);
@@ -205,14 +188,6 @@ export default function ProductDetailClient({
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('fa-IR').format(price);
-
-  if (loadingUser) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p>در حال بارگذاری...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
